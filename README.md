@@ -1,4 +1,4 @@
-Project Proposal  
+**Project Proposal**  
 Project Title: **Healthcare Patient Information System**
 Proponent(s):  
 Codilla, Andre Josef A  
