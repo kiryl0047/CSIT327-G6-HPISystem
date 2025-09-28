@@ -1,6 +1,6 @@
-Project Proposal
-Project Title: **Healthcare Patient Information System**
-Proponent(s):
+#Project Proposal
+#Project Title: **Healthcare Patient Information System**
+#Proponent(s):
 Codilla, Andre Josef A
 Daclan, Rusty Summer
 Durano, Ashlee Skye A.
