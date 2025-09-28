@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Homepage</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .topbar h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .logout-btn {
+        width: 100%; /* full-width button on mobile */
+        text-align: center;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h2>Welcome, {{ username }}!</h2>
+
+    <!-- Logout Button -->
+    <form method="post" action="{% url 'user_login' %}">
+      {% csrf_token %}
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </div>
+
+  <h3>Homepage Content Goes Here</h3>
+</body>
+</html>

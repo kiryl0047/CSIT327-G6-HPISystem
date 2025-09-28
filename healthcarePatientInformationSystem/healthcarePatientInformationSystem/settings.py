@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import psycopg2
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9+n-jza^9-zs^^9omzq7ry1$4r*h@^ngm1moj-crl##ms-!5t_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.51']
 
 
 # Application definition
@@ -74,10 +74,25 @@ WSGI_APPLICATION = 'healthcarePatientInformationSystem.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',  # DB name (check your Supabase connection string)
+        'USER': 'postgres.mdrdopacxswruyhmpgad',  # default Supabase user
+        'PASSWORD': 'TranCIT0987612345',
+        'HOST': 'aws-1-us-east-2.pooler.supabase.com',  # from Supabase dashboard
+        'PORT': '6543',
+        'sslmode': 'require',  # Supabase requires SSL
+        'ATOMIX_REQUIRED': False,
     }
 }
+
+# Email backend (for password reset)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'
+
 
 
 # Password validation

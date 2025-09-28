@@ -35,6 +35,14 @@
       font-weight: bold;
     }
 
+    input, button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box; /* makes width include padding + border */
+    }
+
     input {
       width: 100%;
       padding: 10px;
@@ -81,29 +89,48 @@
     .extra-links a:hover {
       text-decoration: underline;
     }
+
+    .alert-messages{
+    background: #f8d7da;
+    color: #721c24;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #f5c6cb;
+    }
+
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Login</h2>
-    <form method="post" action="">
-      {% csrf_token %}
+  <div class="login-container" id="alert-box">
+  <h2>Login</h2>
 
-      <label for="id_username">Username</label>
-      <input type="text" id="id_username" name="username" required>
-
-      <label for="id_password">Password</label>
-      <input type="password" id="id_password" name="password" required>
-
-      <button type="submit">Login</button>
-    </form>
-
-    <div class="extra-links">
-      <p>
-        <a href="{% url 'signup' %}">Create an Account</a> |
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
-      </p>
+  {% if messages %}
+    <div class="alert-messages">
+      {% for message in messages %}
+      <p>{{ message }}</p>
+      {% endfor %}
     </div>
+  {% endif %}
+
+  <form method="post" action="">
+    {% csrf_token %}
+
+    <label for="id_username">Username</label>
+    <input type="text" id="id_username" name="username" required>
+
+    <label for="id_password">Password</label>
+    <input type="password" id="id_password" name="password" required>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="extra-links">
+    <p>
+      <a href="{% url 'signup' %}">Create an Account</a> |
+      <a href="{% url 'password_reset' %}">Forgot Password?</a>
+    </p>
   </div>
+</div>
 </body>
 </html>
