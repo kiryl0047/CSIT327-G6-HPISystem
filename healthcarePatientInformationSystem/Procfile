@@ -1,1 +1,1 @@
-web: gunicorn hpis.wsgi 
+web: gunicorn healthcarePatientInformationSystem.wsgi:application
