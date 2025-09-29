@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9+n-jza^9-zs^^9omzq7ry1$4r*h@^ngm1moj-crl##ms-!5t_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["hpis.onrender.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["healthcarepatientinformationsystem.onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -138,3 +138,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
