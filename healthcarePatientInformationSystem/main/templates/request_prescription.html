@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prescription Refill</title>
+</head>
+<body>
+  <h2>Request a Prescription Refill</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label>Medication Name:</label>
+    <input type="text" name="medication" required><br><br>
+
+    <label>Notes (optional):</label>
+    <textarea name="notes"></textarea><br><br>
+
+    <button type="submit">Request Refill</button>
+  </form>
+  <p><a href="{% url 'homepage' %}">Back to Home</a></p>
+</body>
+</html>

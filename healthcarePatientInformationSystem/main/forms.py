@@ -26,13 +26,3 @@ class SignupForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Email already registered. Please choose another.")
         return email
-
-
-class DirectPasswordResetForm(forms.Form):
-    email = forms.EmailField(label="Enter your email", max_length=254)
-    new_password1 = forms.CharField(
-        label="New password", widget=forms.PasswordInput, min_length=8
-    )
-    new_password2 = forms.CharField(
-        label="Confirm new password", widget=forms.PasswordInput, min_length=8
-    )

@@ -6,84 +6,206 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      background: linear-gradient(135deg, #e6f0f7, #f4f6f9);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
+
     .form-container {
-      background: #fff;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      width: 350px;
-    }
-    .form-container h2 {
+      background: #f0f0f0;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+      width: 360px;
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+      position: relative;
     }
+
+    .form-container h2 {
+      margin-bottom: 25px;
+      color: #2f2f2f;
+      text-transform: uppercase;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
     label {
       display: block;
-      margin-bottom: 8px;
-      color: #555;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      outline: none;
+      margin-bottom: 6px;
+      color: #444;
       font-size: 14px;
+      text-align: left;
     }
-    input:focus {
-      border-color: #28a745;
-      box-shadow: 0 0 5px rgba(40, 167, 69, 0.2);
-    }
-    button {
+
+    input, button {
       width: 100%;
-      padding: 10px;
-      background: #28a745;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input {
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1c2f6c;
+      box-shadow: 0 0 6px rgba(28, 47, 108, 0.2);
+    }
+
+    button {
+      background: #1c2f6c;
       border: none;
-      border-radius: 6px;
       color: #fff;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
+      margin-top: 5px;
       transition: background 0.3s ease;
     }
+
     button:hover {
-      background: #218838;
+      background: #15224d;
     }
+
     .extra-links {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 18px;
     }
+
     .extra-links a {
-      color: #007bff;
+      color: #1c2f6c;
       text-decoration: none;
       font-size: 14px;
-      margin: 0 5px;
+      margin: 0 6px;
+      font-weight: bold;
     }
+
     .extra-links a:hover {
       text-decoration: underline;
+    }
+
+    /* Password requirements */
+    #requirements {
+      list-style: none;
+      padding-left: 0;
+      font-size: 13px;
+      margin-top: -5px;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    #requirements li {
+      margin-bottom: 5px;
+      padding-left: 20px;
+      position: relative;
+      color: #666;
+    }
+
+    #requirements li::before {
+      content: "✖";
+      position: absolute;
+      left: 0;
+      color: red;
+    }
+
+    #requirements li.valid {
+      color: green;
+    }
+
+    #requirements li.valid::before {
+      content: "✔";
+      color: green;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+      text-align: left;
     }
   </style>
 </head>
 <body>
   <div class="form-container">
-    <h2>Signup</h2>
-    <form method="post">
+    <h2>Welcome to the HPIS Signup Portal</h2>
+
+    <form method="post" id="signupForm">
       {% csrf_token %}
-      {{ form.as_p }}
+
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="email">Personal Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="password1">Password</label>
+      <input type="password" id="password1" name="password1" required>
+
+      <ul id="requirements">
+        <li id="length">8 characters minimum</li>
+        <li id="number">1 number</li>
+        <li id="special">1 special character</li>
+        <li id="uppercase">1 uppercase character</li>
+      </ul>
+
+      <label for="password2">Confirm Password</label>
+      <input type="password" id="password2" name="password2" required>
+
+      <p id="error-message" class="error-message">Please meet all password requirements and ensure both fields match.</p>
+
       <button type="submit">Register</button>
+      <button type="button" onclick="window.location.href='{% url 'user_login' %}'" style="margin-top:10px;background:#444;">Back to Login</button>
     </form>
+
     <div class="extra-links">
       <p>Already have an account? <a href="{% url 'user_login' %}">Login</a></p>
     </div>
   </div>
+
+  <script>
+    const passwordInput = document.getElementById("password1");
+    const confirmInput = document.getElementById("password2");
+    const form = document.getElementById("signupForm");
+    const errorMessage = document.getElementById("error-message");
+
+    const lengthReq = document.getElementById("length");
+    const numberReq = document.getElementById("number");
+    const specialReq = document.getElementById("special");
+    const uppercaseReq = document.getElementById("uppercase");
+
+    passwordInput.addEventListener("input", function () {
+      const value = passwordInput.value;
+
+      value.length >= 8 ? lengthReq.classList.add("valid") : lengthReq.classList.remove("valid");
+      /\d/.test(value) ? numberReq.classList.add("valid") : numberReq.classList.remove("valid");
+      /[!@#$%^&*(),.?":{}|<>]/.test(value) ? specialReq.classList.add("valid") : specialReq.classList.remove("valid");
+      /[A-Z]/.test(value) ? uppercaseReq.classList.add("valid") : uppercaseReq.classList.remove("valid");
+    });
+
+    form.addEventListener("submit", function (e) {
+      const allValid = lengthReq.classList.contains("valid") &&
+                       numberReq.classList.contains("valid") &&
+                       specialReq.classList.contains("valid") &&
+                       uppercaseReq.classList.contains("valid");
+
+      const passwordsMatch = passwordInput.value === confirmInput.value;
+
+      if (!allValid || !passwordsMatch) {
+        e.preventDefault();
+        errorMessage.style.display = "block";
+      } else {
+        errorMessage.style.display = "none";
+      }
+    });
+  </script>
 </body>
 </html>

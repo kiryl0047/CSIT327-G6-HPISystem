@@ -2,74 +2,337 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Homepage</title>
+  <title>Patient Home Page</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       background: #f4f6f9;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
-    .topbar {
+    /* Header / Navbar */
+    header {
+      background: #1c2f6c;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #007bff;
+      padding: 15px 30px;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    /* Welcome */
+    .welcome {
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+    .welcome h2 {
+      font-size: 24px;
+      color: #1c2f6c;
+      margin-bottom: 30px;
+    }
+
+    /* Action Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 0 30px 40px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 25px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    .card h3 { font-size: 16px; margin-bottom: 15px; color: #555; }
+    .card button {
+      background: #1c2f6c;
       color: white;
       padding: 10px 20px;
       border-radius: 6px;
-    }
-
-    .logout-btn {
-      background: #dc3545;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      color: white;
       font-size: 14px;
+      border: none;
       cursor: pointer;
       transition: background 0.3s ease;
     }
+    .card button:hover { background: #15224d; }
 
-    .logout-btn:hover {
-      background: #c82333;
+    /* Forms Section */
+    .form-section {
+      display: none; /* hidden by default */
+      background: white;
+      margin: 0 30px 30px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .form-section.active {
+      display: block; /* show when active */
+    }
+    .form-section h3 {
+      color: #1c2f6c;
+      text-align: center;
     }
 
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .topbar h2 {
-        font-size: 18px;
-        margin-bottom: 10px;
-      }
-
-      .logout-btn {
-        width: 100%; /* full-width button on mobile */
-        text-align: center;
-        font-size: 16px;
-      }
+    /* Appointment Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 30px;
+      margin-top: 20px;
     }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #1c2f6c;
+      outline: none;
+    }
+    .form-submit {
+      margin-top: 25px;
+      text-align: center;
+      grid-column: span 2;
+    }
+    .form-submit button {
+      background: #1c2f6c;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 200px;
+    }
+    .form-submit button:hover {
+      background: #15224d;
+    }
+
+    /* Recent Activity */
+    .recent {
+      padding: 30px;
+      background: white;
+      margin: 0 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .recent h3 { margin-top: 0; font-size: 18px; color: #1c2f6c; }
+    .recent ul { list-style: none; padding: 0; margin: 15px 0 0; }
+    .recent ul li {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    .recent ul li:last-child { border-bottom: none; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f0f0f0;
+      font-size: 13px;
+      color: #666;
+      margin-top: auto;
+    }
+    footer a { color: #1c2f6c; margin: 0 10px; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <h2>Welcome, {{ username }}!</h2>
 
-    <!-- Logout Button -->
-    <form method="post" action="{% url 'user_login' %}">
+  <!-- Header -->
+  <header>
+    <h1>Patient Home Page</h1>
+    <nav>
+      <a href="#">{{ username }}</a>
+      <a href="#">Notifications</a>
+      <a href="#">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Welcome -->
+  <div class="welcome">
+    <h2>Welcome Back, {{ username }}!</h2>
+  </div>
+
+  <!-- Action Cards -->
+  <div class="cards">
+    <div class="card">
+      <h3>Book a New Appointment</h3>
+      <button onclick="showForm('appointmentForm')">Schedule</button>
+    </div>
+    <div class="card">
+      <h3>Upcoming Appointment(s)</h3>
+      <button onclick="showForm('upcomingForm')">View Schedule</button>
+    </div>
+    <div class="card">
+      <h3>Prescription Refill</h3>
+      <button onclick="showForm('prescriptionForm')">Request</button>
+    </div>
+  </div>
+
+  <!-- Appointment Form -->
+  <div id="appointmentForm" class="form-section">
+    <h3>Appointment Form</h3>
+    <form method="POST" action="{% url 'book_appointment' %}">
       {% csrf_token %}
-      <button type="submit" class="logout-btn">Logout</button>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" name="first_name" placeholder="First name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob" name="dob" required>
+        </div>
+
+        <div class="form-group">
+          <label for="last_name">Last Name</label>
+          <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="middle_name">Middle Name</label>
+          <input type="text" id="middle_name" name="middle_name" placeholder="Middle name">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="eg: example@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" placeholder="eg: example" required>
+        </div>
+
+        <div class="form-group">
+          <label for="contact">Contact No.</label>
+          <input type="tel" id="contact" name="contact" placeholder="+971 543210987" required>
+        </div>
+
+        <div class="form-group">
+          <label for="appointment_type">Nature of Appointment</label>
+          <select id="appointment_type" name="appointment_type" required>
+            <option value="">Select</option>
+            <option value="consultation">General Consultation</option>
+            <option value="followup">Follow-up</option>
+            <option value="checkup">Routine Checkup</option>
+            <option value="emergency">Emergency</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="available_date">Available Date</label>
+          <input type="date" id="available_date" name="available_date" required>
+        </div>
+      </div>
+
+      <div class="form-submit">
+        <button type="submit">Submit</button>
+      </div>
     </form>
   </div>
 
-  <h3>Homepage Content Goes Here</h3>
+  <!-- Upcoming Appointments -->
+  <div id="upcomingForm" class="form-section">
+    <h3>Upcoming Appointments</h3>
+    <ul>
+      {% for appt in upcoming_appointments %}
+        <li>{{ appt.date }} - {{ appt.reason }}</li>
+      {% empty %}
+        <li>No upcoming appointments.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Prescription Form -->
+  <div id="prescriptionForm" class="form-section">
+    <h3>Prescription Refill</h3>
+    <form method="POST" action="{% url 'request_prescription' %}">
+      {% csrf_token %}
+      <label>Medicine Name: <input type="text" name="medicine"></label><br><br>
+      <label>Dosage: <input type="text" name="dosage"></label><br><br>
+      <button type="submit">Request Refill</button>
+    </form>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="recent">
+    <h3>Recent Activity</h3>
+    <ul>
+      {% for activity in recent_activity %}
+        <li>{{ activity }}</li>
+      {% empty %}
+        <li>No recent activity found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="#">Contact Us</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+  </footer>
+
+  <script>
+    function showForm(id) {
+      // Hide all forms
+      document.querySelectorAll('.form-section').forEach(div => {
+        div.classList.remove('active');
+      });
+      // Show the one that was clicked
+      document.getElementById(id).classList.add('active');
+      // Scroll into view
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+
 </body>
 </html>
