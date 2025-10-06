@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import os
+import dj_database_url
 import psycopg2
 from pathlib import Path
 
@@ -75,16 +77,11 @@ WSGI_APPLICATION = 'healthcarePatientInformationSystem.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',  # DB name (check your Supabase connection string)
-        'USER': 'postgres.mdrdopacxswruyhmpgad',  # default Supabase user
-        'PASSWORD': 'TranCIT0987612345',
-        'HOST': 'aws-1-us-east-2.pooler.supabase.com',  # from Supabase dashboard
-        'PORT': '6543',
-        "OPTIONS": {"sslmode": "require"},
-        'ATOMIX_REQUIRED': False,
-    }
+    'default': dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # Email backend (for password reset)
