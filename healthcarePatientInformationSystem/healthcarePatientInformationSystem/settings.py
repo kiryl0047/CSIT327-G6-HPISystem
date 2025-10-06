@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import psycopg2
 import os
 import dj_database_url
-import psycopg2
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -77,9 +77,9 @@ WSGI_APPLICATION = 'healthcarePatientInformationSystem.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
+    "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
-        conn_max_age=600,
+        conn_max_age=0,         # important: don't try to hold long connections
         ssl_require=True
     )
 }
