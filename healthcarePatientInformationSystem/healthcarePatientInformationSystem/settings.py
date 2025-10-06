@@ -82,7 +82,7 @@ DATABASES = {
         'PASSWORD': 'TranCIT0987612345',
         'HOST': 'aws-1-us-east-2.pooler.supabase.com',  # from Supabase dashboard
         'PORT': '6543',
-        'sslmode': 'require',  # Supabase requires SSL
+        "OPTIONS": {"sslmode": "require"},
         'ATOMIX_REQUIRED': False,
     }
 }
