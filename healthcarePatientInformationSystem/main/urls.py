@@ -11,7 +11,7 @@ urlpatterns = [
     path("upcoming_appointments/", views.upcoming_appointments, name="upcoming_appointments"),
     path("request_prescription/", views.request_prescription, name="request_prescription"),
 
-    # New Settings URLs
+    # Settings URLs
     path("settings/", views.settings_page, name="settings"),
     path("settings/update-profile/", views.update_profile, name="update_profile"),
     path("settings/change-password/", views.change_password, name="change_password"),

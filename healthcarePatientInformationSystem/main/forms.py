@@ -10,7 +10,6 @@ class LoginForm(forms.Form):
 
 
 class UserProfileForm(forms.ModelForm):
-    """Form for updating user profile information"""
 
     USER_TYPE_CHOICES = (
         ('patient', 'Patient'),
@@ -49,7 +48,6 @@ class UserProfileForm(forms.ModelForm):
         }
 
     def clean_email(self):
-        """Validate that email is unique (except for current user)"""
         email = self.cleaned_data.get('email')
         user_id = self.instance.id
 
@@ -59,7 +57,6 @@ class UserProfileForm(forms.ModelForm):
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
-    """Custom password change form with enhanced validation"""
 
     old_password = forms.CharField(
         label="Current Password",
@@ -86,7 +83,6 @@ class CustomPasswordChangeForm(PasswordChangeForm):
     )
 
     def clean_new_password1(self):
-        """Validate new password requirements"""
         password = self.cleaned_data.get('new_password1')
 
         if len(password) < 8:
@@ -105,7 +101,6 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
 
 class NotificationPreferencesForm(forms.Form):
-    """Form for managing notification preferences"""
 
     email_notifications = forms.BooleanField(
         label="Email Notifications",

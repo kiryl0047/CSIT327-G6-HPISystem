@@ -9,6 +9,7 @@ from datetime import timedelta
 import json
 import csv
 from io import BytesIO, StringIO
+from django.db import connection
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
@@ -188,7 +189,7 @@ def access_logs(request):
         'access_logs': logs
     }
 
-    return render(request, 'access_logs.html', context)
+    return render(request, 'settings.html', context)
 
 
 @login_required
@@ -221,7 +222,6 @@ def request_data_export(request):
     )
 
     # In a real application, you would trigger an async task here
-    # For now, we'll create the export synchronously
     export_user_data(request.user)
 
     messages.success(request, 'Data export request received. You will receive an email shortly.')
@@ -230,7 +230,6 @@ def request_data_export(request):
 
 def export_user_data(user):
     """Generate and store user data export"""
-    # Create CSV with user data
     output = StringIO()
     writer = csv.writer(output)
 
@@ -418,8 +417,8 @@ def download_user_data(request):
 
     return response
 
-# Create your views here.
 def user_login(request):
+    """Handle user login"""
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -438,6 +437,10 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
+
+                # Log the login
+                log_access(user, 'login', 'User logged in', request)
+
                 if not request.POST.get("remember_me"):
                     request.session.set_expiry(0)
                 else:
@@ -446,13 +449,67 @@ def user_login(request):
                 return redirect("homepage")
             else:
                 messages.error(request, "Incorrect password.")
+                # Log failed login
+                if 'user_obj' in locals():
+                    log_access(user_obj, 'failed_login', 'Failed login attempt', request)
     else:
         form = LoginForm()
 
     return render(request, "login.html", {"form": form})
 
+
+def signup(request):
+    print("🟢 signup view triggered!")
+
+    if request.method == "POST":
+        print(f"➡️ Received request method: {request.method}")
+        print(f"📦 Raw POST data: {request.POST}")
+
+        form = SignupForm(request.POST)
+        print("🧩 SignupForm instance created")
+
+        if form.is_valid():
+            print("✅ Form is valid!")
+
+            try:
+                user = form.save()
+                print(f"👤 User '{user.username}' created successfully")
+
+                # Log the signup
+                log_access(user, 'login', 'New account created', request)
+                print("🪵 Signup logged")
+
+                messages.success(request, f"Account created for {user.username}. You can now login.")
+                print("✅ Redirecting to login...")
+                return redirect("user_login")
+
+            except Exception as e:
+                print(f"❌ Exception during user creation: {e}")
+                try:
+                    user.delete()
+                except Exception as e2:
+                    print(f"⚠️ Failed to delete user after error: {e2}")
+
+                messages.error(request, f"Error creating account: {str(e)}")
+                return render(request, "signup.html", {"form": form})
+        else:
+            print("❌ Form is invalid!")
+            print("Errors:", form.errors)
+    else:
+        form = SignupForm()
+        print("🔵 GET request — rendering signup form")
+
+    return render(request, "signup.html", {"form": form})
+
+
+
 @login_required
 def homepage(request):
+    """Display user homepage"""
+
+    # Log homepage visit
+    log_access(request.user, 'data_view', 'Viewed homepage', request)
+
     recent_activity = [
         "9/26/25: Your appointment with Dr. Banyo is confirmed.",
         "9/26/25: Your appointment with Mr. Discaya is confirmed.",
@@ -464,21 +521,36 @@ def homepage(request):
         "recent_activity": recent_activity
     })
 
+
 @login_required
 def book_appointment(request):
+    """Handle appointment booking"""
     if request.method == "POST":
-        # Handle appointment booking here
         patient = request.user
         doctor = request.POST.get("doctor")
         date = request.POST.get("date")
         time = request.POST.get("time")
-        # Save to database (example only, depends on your model)
-        # Appointment.objects.create(patient=patient, doctor=doctor, date=date, time=time)
+
+        # Log appointment booking
+        log_access(
+            request.user,
+            'data_update',
+            f'Booked appointment with {doctor} on {date}',
+            request
+        )
+
+        messages.success(request, "Appointment booked successfully!")
         return redirect("upcoming_appointments")
+
     return render(request, "book_appointment.html")
+
 
 @login_required
 def upcoming_appointments(request):
+    """Display user's upcoming appointments"""
+
+    log_access(request.user, 'data_view', 'Viewed upcoming appointments', request)
+
     # Example: Fetch appointments from DB
     # appointments = Appointment.objects.filter(patient=request.user)
     appointments = [
@@ -487,25 +559,22 @@ def upcoming_appointments(request):
     ]
     return render(request, "upcoming_appointments.html", {"appointments": appointments})
 
+
 @login_required
 def request_prescription(request):
+    """Handle prescription refill requests"""
     if request.method == "POST":
-        # Handle prescription request
         medication = request.POST.get("medication")
         notes = request.POST.get("notes")
-        # PrescriptionRequest.objects.create(patient=request.user, medication=medication, notes=notes)
-        return redirect("homepage")
-    return render(request, "request_prescription.html")
 
-# Signup View
-def signup(request):
-    if request.method == "POST":
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            user = form.save()  # This automatically saves to your Supabase DB
-            username = form.cleaned_data.get("username")
-            messages.success(request, f"Account created for {username}. You can now login.")
-            return redirect("user_login")  # make sure this matches your login URL name
-    else:
-        form = SignupForm()
-    return render(request, "signup.html", {"form": form})
+        log_access(
+            request.user,
+            'data_update',
+            f'Requested prescription refill for {medication}',
+            request
+        )
+
+        messages.success(request, "Prescription refill request submitted!")
+        return redirect("homepage")
+
+    return render(request, "request_prescription.html")

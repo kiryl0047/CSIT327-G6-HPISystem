@@ -124,8 +124,6 @@ class DeleteAccountRequest(models.Model):
     requested_at = models.DateTimeField(auto_now_add=True)
     confirmed_at = models.DateTimeField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
-
-    # Deletion scheduled for 30 days after confirmation
     scheduled_deletion_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):

@@ -162,8 +162,7 @@
 
       <p id="error-message" class="error-message">Please meet all password requirements and ensure both fields match.</p>
 
-      <button type="submit">Register</button>
-      <button type="button" onclick="window.location.href='{% url 'user_login' %}'" style="margin-top:10px;background:#444;">Back to Login</button>
+      <button type="submit" >Register</button>
     </form>
 
     <div class="extra-links">
@@ -172,40 +171,45 @@
   </div>
 
   <script>
-    const passwordInput = document.getElementById("password1");
-    const confirmInput = document.getElementById("password2");
-    const form = document.getElementById("signupForm");
-    const errorMessage = document.getElementById("error-message");
+      document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password1");
+        const confirmInput = document.getElementById("password2");
+        const form = document.getElementById("signupForm");
+        const errorMessage = document.getElementById("error-message");
 
-    const lengthReq = document.getElementById("length");
-    const numberReq = document.getElementById("number");
-    const specialReq = document.getElementById("special");
-    const uppercaseReq = document.getElementById("uppercase");
+        const lengthReq = document.getElementById("length");
+        const numberReq = document.getElementById("number");
+        const specialReq = document.getElementById("special");
+        const uppercaseReq = document.getElementById("uppercase");
 
-    passwordInput.addEventListener("input", function () {
-      const value = passwordInput.value;
+        passwordInput.addEventListener("input", function () {
+          const value = passwordInput.value;
 
-      value.length >= 8 ? lengthReq.classList.add("valid") : lengthReq.classList.remove("valid");
-      /\d/.test(value) ? numberReq.classList.add("valid") : numberReq.classList.remove("valid");
-      /[!@#$%^&*(),.?":{}|<>]/.test(value) ? specialReq.classList.add("valid") : specialReq.classList.remove("valid");
-      /[A-Z]/.test(value) ? uppercaseReq.classList.add("valid") : uppercaseReq.classList.remove("valid");
-    });
+          value.length >= 8 ? lengthReq.classList.add("valid") : lengthReq.classList.remove("valid");
+          /\d/.test(value) ? numberReq.classList.add("valid") : numberReq.classList.remove("valid");
+          /[!@#$%^&*(),.?":{}|<>]/.test(value) ? specialReq.classList.add("valid") : specialReq.classList.remove("valid");
+          /[A-Z]/.test(value) ? uppercaseReq.classList.add("valid") : uppercaseReq.classList.remove("valid");
+        });
 
-    form.addEventListener("submit", function (e) {
-      const allValid = lengthReq.classList.contains("valid") &&
-                       numberReq.classList.contains("valid") &&
-                       specialReq.classList.contains("valid") &&
-                       uppercaseReq.classList.contains("valid");
+        form.addEventListener("submit", function (e) {
+          console.log("Form submit triggered!"); // ✅ should now show in console
 
-      const passwordsMatch = passwordInput.value === confirmInput.value;
+          const allValid = lengthReq.classList.contains("valid") &&
+                           numberReq.classList.contains("valid") &&
+                           specialReq.classList.contains("valid") &&
+                           uppercaseReq.classList.contains("valid");
 
-      if (!allValid || !passwordsMatch) {
-        e.preventDefault();
-        errorMessage.style.display = "block";
-      } else {
-        errorMessage.style.display = "none";
-      }
-    });
-  </script>
+        const passwordsMatch = passwordInput.value === confirmInput.value;
+
+          if (!allValid || !passwordsMatch) {
+            e.preventDefault();
+            errorMessage.style.display = "block";
+          } else {
+            errorMessage.style.display = "none";
+          }
+        });
+      });
+    </script>
+
 </body>
 </html>
