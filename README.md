@@ -1,91 +1,124 @@
 # Healthcare Patient Information System (HPIS)
 
-## Executive Summary
-
-Healthcare Patient Information System (HPIS) is a **web-based platform** designed to help local clinics and barangay health centers efficiently manage patient information.
-
-The system centralizes:
-
-* Patient records
-* Appointment scheduling
-* Medicine prescriptions
-* Patient history
-
-Additionally, HPIS provides **basic health analytics** such as patient visit frequency and most common illnesses.
-
-By reducing manual paperwork, HPIS improves healthcare delivery and enables **data-driven decision-making**.
+A **web-based platform** designed to help local clinics and barangay health centers efficiently manage patient information. The system centralizes patient records, appointment scheduling, prescription tracking, and patient history while offering basic health analytics for data-driven healthcare decisions.
 
 ---
 
-## Background / Problem Statement
+## 🧩 Tech Stack
 
-Healthcare providers in local clinics and barangay health centers face challenges with manual or semi-digital record-keeping.
-
-### Current Challenges
-
-* Lost or incomplete patient records
-* Difficulty in tracking appointments and follow-ups
-* Inefficient prescription management
-* Lack of insights on patient trends or common illnesses
-
-### Opportunity
-
-Implementing a web-based patient information system allows clinics to:
-
-* Manage records efficiently
-* Track patient trends
-* Provide faster and more accurate healthcare services
+- **Frontend:** HTML, CSS, JavaScript, Bootstrap  
+- **Backend:** Django (Python)  
+- **Database:** PostgreSQL  
+- **Version Control:** Git & GitHub  
+- **Deployment:** (to be added once deployed)  
 
 ---
 
-## Project Objectives
+## ⚙️ Setup & Run Instructions
 
-### Primary Objective
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/<your-username>/healthcare-patient-information-system.git
+   cd healthcare-patient-information-system
+   ```
 
-Develop and deploy a **web-based Healthcare Patient Information System** for local clinics and barangay health centers.
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   ```
 
-### Specific Objectives (SMART)
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-1. Deploy a fully functional web system with secure login by **Q4 2025**.
-2. Implement **patient record management, appointment scheduling, and prescription tracking** modules.
-3. Include a **basic analytics dashboard** for patient visit frequency and common illnesses.
-4. Achieve **90% staff adoption** within the first 3 months of deployment.
-5. Ensure **secure storage and backup of patient data** with compliance to privacy standards.
+4. **Run migrations**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
 
----
+5. **Start the server**
+   ```bash
+   python manage.py runserver
+   ```
 
-## Scope of Work
-
-### In-Scope
-
-* Web application for healthcare staff
-* Patient record management, appointment scheduling, prescription tracking, and history logging
-* Basic health analytics module
-* Secure data storage and backup
-
-### Out-of-Scope
-
-* Mobile app development
-* Integration with national health databases
-* Advanced predictive analytics or AI diagnosis
-* Provisioning of clinic hardware
-
----
-
-## License
-
-This project will be released under an open-source license (to be decided).
+6. **Access the system**
+   - Open your browser and go to:  
+     👉 `http://127.0.0.1:8000`
 
 ---
 
-## Contributors
+## 👥 Team Members
 
-* Codilla, Andre Josef A - **Product Owner**
-* Daclan, Rusty Summer - **Business Analyst**
-* Durano, Ashlee Skye A. - **Business Analyst**
-* Erojo, Richimir B. - **Scrum Master**
-* Canoy, Andrei Mesiah M. - **Development Team**  
-* Canada, Keith Charven S. - **Development Team**
-* Casas, Kursten Dane M. - **Development Team**  
+| Name | Role | CIT-U Email |
+|------|------|--------------|
+| **Codilla, Andre Josef A.** | Product Owner | andrejosef.codilla@cit.edu |
+| **Daclan, Rusty Summer** | Business Analyst | rustysummer.daclan@cit.edu |
+| **Erojo, Richimir B.** | Business Analyst | richimir.erojo@cit.edu |
+| **Durano, Ashlee Skye A.** | Scrum Master | ashleeskye.durano@cit.edu |
+| **Canoy, Andrei Mesiah M.** | Developer | andreimesiah.canoy@cit.edu |
+| **Canada, Keith Charven S.** | Developer | keithcharven.canada@cit.edu |
+| **Casas, Kursten Dane M.** | Developer | kurstendane.casas@cit.edu |
 
 ---
+
+## 🌐 Deployed Link
+
+> 🔗 **NONE FOR NOW**
+
+---
+
+## 🩺 Project Objectives
+
+- Develop and deploy a fully functional web-based healthcare information system.  
+- Implement patient record management, appointment scheduling, and prescription tracking modules.  
+- Include an analytics dashboard for patient visit frequency and common illnesses.  
+- Ensure secure storage and compliance with data privacy standards.
+
+---
+
+## 📅 Timeline Overview
+
+| Phase | Duration | Target Completion |
+|--------|-----------|-------------------|
+| Requirements | 2 weeks | Sept 20, 2025 |
+| Design & Prototyping | 4 weeks | Oct 11, 2025 |
+| Development | 8 weeks | Nov 22, 2025 |
+| Testing | 3 weeks | Dec 6, 2025 |
+| Deployment | 1 week | Dec 2025 |
+
+---
+
+## 🧠 Key Features
+
+- Patient Record Management  
+- Appointment Scheduling  
+- Prescription Tracking  
+- Patient History Logging  
+- Analytics Dashboard (Visits & Illness Trends)  
+- Secure Login & Role-Based Access  
+
+---
+
+## 🔒 Security Features
+
+- SSL encryption  
+- Role-based access control  
+- Secure data backup  
+- Regular audit mechanisms  
+
+---
+
+## 📈 Expected Benefits
+
+- **For Clinics:** Centralized patient data, improved workflow, and faster service.  
+- **For Staff:** Reduced paperwork, easy access to patient history, and better analytics.  
+- **For Patients:** Timely follow-ups, accurate records, and improved healthcare experience.  
+
+---
+
+### 🏫 Developed for
+> **Cebu Institute of Technology – University**  
+> *IT317-G2 Project Management Course*
