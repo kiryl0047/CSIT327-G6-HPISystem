@@ -58,9 +58,9 @@ A **web-based platform** designed to help local clinics and barangay health cent
 | **Daclan, Rusty Summer** | Business Analyst | rustysummer.daclan@cit.edu |
 | **Erojo, Richimir B.** | Business Analyst | richimir.erojo@cit.edu |
 | **Durano, Ashlee Skye A.** | Scrum Master | ashleeskye.durano@cit.edu |
+| **Casas, Kursten Dane M.** | Lead Developer | kurstendane.casas@cit.edu |
 | **Canoy, Andrei Mesiah M.** | Developer | andreimesiah.canoy@cit.edu |
 | **Canada, Keith Charven S.** | Developer | keithcharven.canada@cit.edu |
-| **Casas, Kursten Dane M.** | Developer | kurstendane.casas@cit.edu |
 
 ---
 
