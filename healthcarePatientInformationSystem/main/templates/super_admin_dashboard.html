@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Dashboard - HPIS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+      color: white;
+      padding: 20px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    header nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    header a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* Page Title */
+    h2 {
+      color: #1c2f6c;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .stat-card h3 {
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1c2f6c;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+      color: white;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(28, 47, 108, 0.3);
+    }
+
+    /* Section */
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    .section h3 {
+      color: #1c2f6c;
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    /* Table */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background: #f5f7fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 2px solid #ddd;
+      font-size: 13px;
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .table tr:hover {
+      background: #f9f9f9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-admin {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .badge-doctor {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .badge-pending {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    /* Action Links */
+    .action-link {
+      color: #1c2f6c;
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+
+    .action-link:hover {
+      text-decoration: underline;
+    }
+
+    .delete-link {
+      color: #f44336;
+    }
+
+    /* Footer */
+    footer {
+      background: #f0f0f0;
+      padding: 20px 30px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .table {
+        font-size: 13px;
+      }
+
+      .table th, .table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>👑 Super Admin Dashboard</h1>
+    <nav>
+      <a href="{% url 'super_admin_dashboard' %}">Dashboard</a>
+      <a href="{% url 'manage_staff' %}">Manage Staff</a>
+      <a href="{% url 'settings' %}">Settings</a>
+      <a href="{% url 'user_login' %}">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <h2>Dashboard Overview</h2>
+
+    <!-- Statistics -->
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <h3>Total Staff</h3>
+        <div class="number">{{ stats.total_staff }}</div>
+        <div class="label">Admins & Doctors</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Admin Accounts</h3>
+        <div class="number">{{ stats.admins }}</div>
+        <div class="label">Active Admins</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Doctor Accounts</h3>
+        <div class="number">{{ stats.doctors }}</div>
+        <div class="label">Active Doctors</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Pending Appointments</h3>
+        <div class="number">{{ stats.pending_appointments }}</div>
+        <div class="label">Awaiting Assignment</div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <a href="{% url 'create_staff' %}" class="action-btn">+ Create New Staff</a>
+      <a href="{% url 'manage_staff' %}" class="action-btn">Manage Staff Accounts</a>
+      <a href="{% url 'settings' %}" class="action-btn">Account Settings</a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div style="margin-bottom: 20px;">
+      {% for message in messages %}
+        <div style="background: #c8e6c9; color: #2e7d32; padding: 15px; border-radius: 6px; border-left: 4px solid #2e7d32; margin-bottom: 10px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats Section -->
+    <div class="section">
+      <h3>System Overview</h3>
+      <table class="table">
+        <tr>
+          <td style="padding: 20px; text-align: center; color: #666;">
+            <p><strong>Admin Count:</strong> {{ stats.admins }} account(s)</p>
+            <p><strong>Doctor Count:</strong> {{ stats.doctors }} account(s)</p>
+            <p><strong>Pending Appointments:</strong> {{ stats.pending_appointments }} request(s)</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Staff Management Quick Access -->
+    <div class="section">
+      <h3>Quick Actions</h3>
+      <ul style="list-style: none;">
+        <li style="padding: 10px 0;">
+          <a href="{% url 'create_staff' %}" class="action-link">➕ Create New Admin Account</a>
+        </li>
+        <li style="padding: 10px 0;">
+          <a href="{% url 'create_staff' %}" class="action-link">➕ Create New Doctor Account</a>
+        </li>
+        <li style="padding: 10px 0;">
+          <a href="{% url 'manage_staff' %}" class="action-link">📋 View All Staff Members</a>
+        </li>
+        <li style="padding: 10px 0;">
+          <a href="{% url 'settings' %}" class="action-link">⚙️ System Settings</a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

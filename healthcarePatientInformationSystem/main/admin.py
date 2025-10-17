@@ -7,9 +7,9 @@ from .models import (
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'user_type', 'profession', 'created_at', 'updated_at')
-    list_filter = ('user_type', 'profession', 'created_at')
-    search_fields = ('user__username', 'user__email')
+    list_display = ('user', 'role', 'department', 'license_number', 'created_at', 'updated_at')
+    list_filter = ('role', 'department', 'created_at')
+    search_fields = ('user__username', 'user__email', 'department', 'license_number')
     readonly_fields = ('created_at', 'updated_at')
 
     fieldsets = (
@@ -17,13 +17,14 @@ class UserProfileAdmin(admin.ModelAdmin):
             'fields': ('user',)
         }),
         ('Profile Details', {
-            'fields': ('user_type', 'profession')
+            'fields': ('role', 'department', 'license_number')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
+
 
 
 @admin.register(NotificationPreference)

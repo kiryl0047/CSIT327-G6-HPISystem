@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Confirm Appointment</h2>
+
+  <p><strong>Patient:</strong> {{ appointment.patient_name }}</p>
+  <p><strong>Date:</strong> {{ appointment.date }}</p>
+  <p><strong>Status:</strong> {{ appointment.status }}</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="status">Update Status:</label>
+      <select name="status" id="status" class="form-control">
+        <option value="Pending" {% if appointment.status == "Pending" %}selected{% endif %}>Pending</option>
+        <option value="Confirmed" {% if appointment.status == "Confirmed" %}selected{% endif %}>Confirmed</option>
+        <option value="Completed" {% if appointment.status == "Completed" %}selected{% endif %}>Completed</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Save</button>
+    <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary mt-3">Back</a>
+  </form>
+</div>
+{% endblock %}

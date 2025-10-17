@@ -142,7 +142,7 @@
       </div>
     {% endif %}
 
-    <form method="post" action="">
+    <form method="POST" action="">
       {% csrf_token %}
 
       <label for="id_username">Username or Email</label>
@@ -158,10 +158,6 @@
 
       <button type="submit">Login</button>
     </form>
-
-    <div class="extra-links">
-      <p><a href="signup">Create an Account</a></p>
-    </div>
   </div>
 </body>
 </html>

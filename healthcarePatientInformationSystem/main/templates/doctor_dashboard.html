@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Doctor Dashboard</h2>
+
+  {% if appointments %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Patient Name</th>
+        <th>Appointment Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appointment in appointments %}
+      <tr>
+        <td>{{ appointment.patient_name }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.status }}</td>
+        <td>
+          <a href="{% url 'confirm_appointment' appointment.id %}" class="btn btn-primary btn-sm">
+            Confirm
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No appointments assigned yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -581,7 +581,7 @@
       <div id="profile" class="section active">
         <h2>User Profile</h2>
 
-        <form method="POST" action="{% url 'update_profile' %}">
+        <form method="POST">
           {% csrf_token %}
           <div class="profile-info">
             <div class="profile-item">
@@ -661,7 +661,7 @@
           </div>
 
           <div class="btn-group">
-            <button type="submit" class="btn-primary">Update Password</button>
+            <button type="submit" class="btn-primary" >Update Password</button>
             <button type="reset" class="btn-secondary">Clear</button>
           </div>
         </form>
@@ -718,7 +718,7 @@
         <div class="privacy-option">
           <strong>Download Your Data</strong>
           <p>Download a copy of all your personal data and medical records in a portable format.</p>
-          <form method="GET" action="{% url 'download_user_data' %}" style="display: inline;">
+          <form method="GET" style="display: inline;">
             <button type="submit">Download Data</button>
           </form>
         </div>
@@ -726,13 +726,12 @@
         <div class="privacy-option">
           <strong>View Access Logs</strong>
           <p>See a history of all accesses to your account and medical information.</p>
-          <a href="{% url 'access_logs' %}" style="display: inline-block; padding: 8px 16px; background: #1c2f6c; color: white; border-radius: 4px; text-decoration: none; cursor: pointer;">View Logs</a>
         </div>
 
         <div class="privacy-option">
           <strong>Request Data Export</strong>
           <p>Request a comprehensive export of all your data (may take up to 24 hours).</p>
-          <form method="POST" action="{% url 'request_data_export' %}" style="display: inline;">
+          <form method="POST" style="display: inline;">
             {% csrf_token %}
             <button type="submit">Request Export</button>
           </form>
@@ -790,7 +789,7 @@
       <h3>Delete Account</h3>
       <p><strong>⚠️ Warning:</strong> This action is permanent and cannot be undone. Your account will be scheduled for deletion in 30 days after confirmation.</p>
 
-      <form method="POST" action="{% url 'request_account_deletion' %}">
+      <form method="POST">
         {% csrf_token %}
         <div class="form-group">
           <label for="reason">Reason for deletion (optional):</label>
