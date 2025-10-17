@@ -51,6 +51,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -124,3 +125,15 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# ================================================
+# FIX for Authentication Redirects (404 Error) 
+# ================================================
+
+# This tells the @login_required decorator and other auth views 
+# where to find your custom login view ('user_login' is the name 
+# defined in your main/urls.py).
+LOGIN_URL = 'user_login'
+
+# This tells Django where to redirect after a successful login (optional, but clean).
+LOGIN_REDIRECT_URL = 'homepage'

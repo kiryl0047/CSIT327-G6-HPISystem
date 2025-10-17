@@ -309,8 +309,14 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Create Account</button>
-            <button type="reset" class="btn btn-secondary">Clear Form</button>
+            <label style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" name="email_temp_password">
+              <span style="font-size:14px">Email temporary password to staff</span>
+            </label>
+            <div style="width:100%;display:flex;gap:15px;justify-content:center;margin-top:8px;">
+              <button type="submit" class="btn btn-primary">Create Account</button>
+              <button type="reset" class="btn btn-secondary">Clear Form</button>
+            </div>
           </div>
         </div>
       </form>

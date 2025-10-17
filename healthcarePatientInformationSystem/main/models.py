@@ -18,6 +18,7 @@ class UserProfile(models.Model):
     license_number = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    must_change_password = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"

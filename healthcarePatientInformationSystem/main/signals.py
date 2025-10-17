@@ -12,12 +12,22 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         try:
+            # Determine default role for the newly created user
+            if instance.is_superuser:
+                default_role = 'super_admin'
+            elif instance.is_staff:
+                default_role = 'admin'
+            else:
+                default_role = 'doctor'
+
+            # Create a basic profile; fields must match the UserProfile model
             UserProfile.objects.create(
                 user=instance,
-                user_type='patient',
-                profession='patient'
+                role=default_role,
+                department='',
+                license_number=''
             )
-            print(f"✓ UserProfile created for {instance.username}")
+            print(f"✓ UserProfile created for {instance.username} with role {default_role}")
         except Exception as e:
             print(f"✗ Error creating UserProfile: {e}")
 
@@ -30,13 +40,15 @@ def create_notification_preference(sender, instance, created, **kwargs):
     """
     if created:
         try:
-            NotificationPreference.objects.create(
+            NotificationPreference.objects.get_or_create(
                 user=instance,
-                email_notifications=True,
-                sms_notifications=True,
-                prescription_alerts=True,
-                system_updates=True
+                defaults={
+                    'email_notifications': True,
+                    'sms_notifications': True,
+                    'prescription_alerts': True,
+                    'system_updates': True,
+                }
             )
-            print(f"✓ NotificationPreference created for {instance.username}")
+            print(f"✓ NotificationPreference ensured for {instance.username}")
         except Exception as e:
-            print(f"✗ Error creating NotificationPreference: {e}")
+            print(f"✗ Error ensuring NotificationPreference: {e}")

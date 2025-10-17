@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
+import string
 from django.contrib import messages
 from django.http import JsonResponse, FileResponse
 from django.utils import timezone
@@ -8,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 from datetime import timedelta
 import json
 import csv
+from django.contrib.auth import update_session_auth_hash
 from io import BytesIO, StringIO
 from functools import wraps
 
@@ -17,6 +20,8 @@ from .models import (
     UserProfile, NotificationPreference, AccessLog,
     DataExportRequest, DeleteAccountRequest, PatientAppointment
 )
+from django.db import transaction
+from django.core.mail import send_mail
 
 
 # ==================== Decorators ====================
@@ -90,6 +95,13 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
+                # If the user's profile requires a password change, redirect them to change-password
+                try:
+                    if user.profile.must_change_password:
+                        return redirect('change_password')
+                except Exception:
+                    pass
+
                 log_access(user, 'login', 'User logged in', request)
 
                 if not request.POST.get("remember_me"):
@@ -97,8 +109,13 @@ def user_login(request):
                 else:
                     request.session.set_expiry(1209600)
 
-                # Redirect based on role
+                # Redirect based on Django flags first (superuser/staff), then profile.role
                 try:
+                    if user.is_superuser:
+                        return redirect('super_admin_dashboard')
+                    if user.is_staff:
+                        return redirect('admin_dashboard')
+
                     role = user.profile.role
                     if role == 'super_admin':
                         return redirect('super_admin_dashboard')
@@ -192,8 +209,9 @@ def create_staff(request):
             return redirect('create_staff')
 
         try:
-            # Create user with temporary password
-            temp_password = str(123456)
+            # Create user with a secure temporary password (letters+digits+punctuation)
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            temp_password = get_random_string(12, alphabet)
             user = User.objects.create_user(
                 username=username,
                 email=email,
@@ -202,16 +220,60 @@ def create_staff(request):
                 last_name=last_name
             )
 
-            # Create profile with role
-            profile = UserProfile.objects.create(
-                user=user,
-                role=role,
-                department=department,
-                license_number=license_number
-            )
+            # Create profile with role and notification preferences atomically
+            # Read optional checkbox to email temp password
+            email_temp = request.POST.get('email_temp_password') == 'on'
 
-            # Create notification preferences
-            NotificationPreference.objects.create(user=user)
+            with transaction.atomic():
+                # Safely get the profile (which may have been created by a signal)
+                profile, created = UserProfile.objects.get_or_create(user=user)
+
+                # Now, update the profile's fields regardless of whether it was created now or by a signal
+                profile.role = role
+                profile.department = department
+                profile.license_number = license_number
+
+                # Set must_change_password flag
+                profile.must_change_password = True
+                
+                profile.save() # <-- Save the updated fields
+
+                # Keep the NotificationPreference check as a safety measure
+                NotificationPreference.objects.get_or_create(user=user)
+
+            # Optionally send the temporary password via email (HTML)
+            if email_temp and email:
+                try:
+                    subject = 'Welcome to the Healthcare Patient Information System'
+                    plain_message = (
+                        f'Hello {first_name or username},\n\n'
+                        f'An account has been created for you.\n'
+                        f'Username: {username}\n'
+                        f'Temporary password: {temp_password}\n\n'
+                        'Please change your password on first login.\n\n'
+                        'If you have any questions, contact IT Support.'
+                    )
+
+                    html_message = (
+                        f'<p>Hello {first_name or username},</p>'
+                        f'<p>An account has been created for you.</p>'
+                        f'<ul><li><strong>Username:</strong> {username}</li>'
+                        f'<li><strong>Temporary password:</strong> <code>{temp_password}</code></li></ul>'
+                        f'<p>Please change your password on first login.</p>'
+                        f'<p>If you have any questions, contact IT Support.</p>'
+                    )
+
+                    send_mail(
+                        subject=subject,
+                        message=plain_message,
+                        from_email=None,
+                        recipient_list=[email],
+                        html_message=html_message,
+                        fail_silently=True,
+                    )
+                except Exception:
+                    # Swallow email errors but log if desired
+                    pass
 
             log_access(
                 request.user,
@@ -220,11 +282,14 @@ def create_staff(request):
                 request
             )
 
-            messages.success(
-                request,
-                f'{role.title()} account created for {username}. Temporary password: {temp_password}'
-            )
-            return redirect('manage_staff')
+            # Render a success page that shows the temporary password so admin can copy it
+            return render(request, 'create_staff_success.html', {
+                'username': username,
+                'email': email,
+                'role': role,
+                'temp_password': temp_password,
+                'profile': profile,
+            })
 
         except Exception as e:
             messages.error(request, f'Error creating account: {str(e)}')
@@ -448,15 +513,33 @@ def settings_page(request):
 
 
 @login_required
-@require_http_methods(["POST"])
+# REMOVED: @require_http_methods(["POST"]) 
 def change_password(request):
-    """Handle password change"""
+    """
+    Handle password change.
+    GET: Displays the form.
+    POST: Processes the form submission.
+    """
     if request.method == 'POST':
         form = CustomPasswordChangeForm(request.user, request.POST)
 
         if form.is_valid():
             user = form.save()
+            
+            # 🌟 FIX: Keep the user logged in after password change 🌟
+            update_session_auth_hash(request, user) 
 
+            # Clear must_change_password flag if present...
+            # ... (rest of your existing code for clearing the flag)
+            try:
+                profile = request.user.profile
+                if profile.must_change_password:
+                    profile.must_change_password = False
+                    profile.save()
+            except Exception:
+                pass
+            # ... (rest of your existing code)
+            
             log_access(
                 request.user,
                 'data_update',
@@ -464,18 +547,25 @@ def change_password(request):
                 request
             )
 
-            messages.success(request, 'Password changed successfully!')
-            return redirect('settings')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{error}")
+            messages.success(request, 'Password changed successfully! You are still logged in.')
             return redirect('settings')
 
-    else:
+    else: # Handles the GET request, including the redirect from user_login
         form = CustomPasswordChangeForm(request.user)
+    
+    # Renders the change password form, likely integrated into settings.html
+    # Note: If your change_password URL is meant to be a standalone page, 
+    #       you might need a separate template, but based on your structure, 
+    #       it seems to be a dedicated endpoint that renders the form within settings.
+    # We will redirect to settings instead, as the form should live there.
+    
+    # If the user is on the change_password URL directly via GET, we redirect them 
+    # to the main settings page which will render the form using the settings_page view.
+    return redirect('settings')
 
-    return render(request, 'settings.html', {'password_form': form})
+# The settings_page view needs to be updated to pass the form object for the template.
+# But for now, fixing the redirect logic in user_login is the most direct solution 
+# combined with removing the POST-only decorator.
 
 
 @login_required

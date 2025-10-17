@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Staff Account Created</h2>
+  <p>Username: <strong>{{ username }}</strong></p>
+  <p>Email: <strong>{{ email }}</strong></p>
+  <p>Role: <strong>{{ role }}</strong></p>
+  <p>Temporary password (copy and share with staff):</p>
+  <pre style="background:#f7f7f7;padding:10px;border:1px solid #ddd;">{{ temp_password }}</pre>
+  <p>Ask the staff to change their password after first login.</p>
+  <a href="{% url 'manage_staff' %}">Return to staff management</a>
+{% endblock %}
