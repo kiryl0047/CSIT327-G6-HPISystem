@@ -1,33 +1,30 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label='Your Username', max_length=100)
-    password = forms.CharField(label='Your Password', max_length=100)
+    """Login form for staff members"""
+    username = forms.CharField(
+        label='Username or Email',
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter username or email'
+        })
+    )
+    password = forms.CharField(
+        label='Password',
+        max_length=100,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter password'
+        })
+    )
 
 
 class UserProfileForm(forms.ModelForm):
-
-    USER_TYPE_CHOICES = (
-        ('patient', 'Patient'),
-        ('healthcare_staff', 'Healthcare Staff'),
-        ('admin', 'Administrator'),
-    )
-
-    PROFESSION_CHOICES = (
-        ('patient', 'Patient'),
-        ('doctor', 'Doctor'),
-        ('nurse', 'Nurse'),
-        ('receptionist', 'Receptionist'),
-        ('admin', 'Administrator'),
-        ('other', 'Other'),
-    )
-
-    user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, required=True)
-    profession = forms.ChoiceField(choices=PROFESSION_CHOICES, required=True)
+    """Form for updating user profile information"""
 
     class Meta:
         model = User
@@ -48,6 +45,7 @@ class UserProfileForm(forms.ModelForm):
         }
 
     def clean_email(self):
+        """Validate that email is unique (except for current user)"""
         email = self.cleaned_data.get('email')
         user_id = self.instance.id
 
@@ -57,6 +55,7 @@ class UserProfileForm(forms.ModelForm):
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
+    """Custom password change form with enhanced validation"""
 
     old_password = forms.CharField(
         label="Current Password",
@@ -83,7 +82,11 @@ class CustomPasswordChangeForm(PasswordChangeForm):
     )
 
     def clean_new_password1(self):
+        """Validate new password meets requirements"""
         password = self.cleaned_data.get('new_password1')
+
+        if not password:
+            raise ValidationError("Password cannot be empty.")
 
         if len(password) < 8:
             raise ValidationError("Password must be at least 8 characters long.")
@@ -99,8 +102,21 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
         return password
 
+    def clean(self):
+        """Ensure passwords match"""
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('new_password1')
+        password2 = cleaned_data.get('new_password2')
+
+        if password1 and password2:
+            if password1 != password2:
+                raise ValidationError("The new passwords do not match.")
+
+        return cleaned_data
+
 
 class NotificationPreferencesForm(forms.Form):
+    """Form for managing notification preferences"""
 
     email_notifications = forms.BooleanField(
         label="Email Notifications",
@@ -130,23 +146,23 @@ class NotificationPreferencesForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
 
-# Custom Signup Form
-class SignupForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
-    class Meta:
-        model = User
-        fields = ["username", "email", "password1", "password2"]
-
-    # Custom validation for username and email
-    def clean_username(self):
-        username = self.cleaned_data.get("username")
-        if User.objects.filter(username__iexact=username).exists():
-            raise forms.ValidationError("Username already exists. Please choose another.")
-        return username
-
-    def clean_email(self):
-        email = self.cleaned_data.get("email")
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("Email already registered. Please choose another.")
-        return email
+# # Custom Signup Form
+# class SignupForm(UserCreationForm):
+#     email = forms.EmailField(required=True)
+#
+#     class Meta:
+#         model = User
+#         fields = ["username", "email", "password1", "password2"]
+#
+#     # Custom validation for username and email
+#     def clean_username(self):
+#         username = self.cleaned_data.get("username")
+#         if User.objects.filter(username__iexact=username).exists():
+#             raise forms.ValidationError("Username already exists. Please choose another.")
+#         return username
+#
+#     def clean_email(self):
+#         email = self.cleaned_data.get("email")
+#         if User.objects.filter(email__iexact=email).exists():
+#             raise forms.ValidationError("Email already registered. Please choose another.")
+#         return email

@@ -25,7 +25,11 @@ urlpatterns = [
     path("doctor/confirm-appointment/<int:appointment_id>/", views.confirm_appointment, name="confirm_appointment"),
 
     # Settings URLs
-    path("settings/", views.settings_page, name="settings"),
+    path("settings/", views.settings, name="settings"),
+    path("settings/update-profile", views.update_profile, name="update_profile"),
     path("settings/change-password/", views.change_password, name="change_password"),
     path("settings/update-notifications/", views.update_notifications, name="update_notifications"),
+    path("settings/download-user-data", views.download_user_data, name="download_user_data"),
+    path("settings/request-data-export", views.request_data_export, name="request_data_export"),
+    path("settings/request-account-deletion", views.request_account_deletion, name="request_account_deletion"),
 ]
