@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Appointment - HPIS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+      color: white;
+      padding: 20px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #1c2f6c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .card h2 {
+      color: #1c2f6c;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+
+    /* Two Column Layout */
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+
+    .column h3 {
+      color: #1c2f6c;
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .info-item {
+      margin-bottom: 15px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .required {
+      color: #f44336;
+    }
+
+    .form-group select,
+    .form-group input {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+      outline: none;
+      border-color: #1c2f6c;
+      box-shadow: 0 0 0 3px rgba(28, 47, 108, 0.1);
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #1c2f6c;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #15224d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(28, 47, 108, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    /* Status Badge */
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    /* Footer */
+    footer {
+      background: #f0f0f0;
+      padding: 20px 30px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Assign Appointment to Doctor</h1>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <a href="{% url 'admin_dashboard' %}" class="back-link">← Back to Dashboard</a>
+
+    <div class="card">
+      <h2>Appointment Assignment</h2>
+
+      <!-- Two Column Layout: Patient Info + Doctor Selection -->
+      <div class="two-column">
+        <!-- Patient Information -->
+        <div class="column">
+          <h3>Patient Information</h3>
+          
+          <div class="info-item">
+            <div class="info-label">Full Name</div>
+            <div class="info-value">
+              {{ appointment.first_name }} 
+              {% if appointment.middle_name %}{{ appointment.middle_name }}{% endif %}
+              {{ appointment.last_name }}
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Date of Birth</div>
+            <div class="info-value">{{ appointment.date_of_birth|date:"M d, Y" }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Gender</div>
+            <div class="info-value">
+              {% if appointment.gender == 'M' %}Male
+              {% elif appointment.gender == 'F' %}Female
+              {% else %}Other{% endif %}
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ appointment.email }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Contact Number</div>
+            <div class="info-value">{{ appointment.contact_number }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Address</div>
+            <div class="info-value">{{ appointment.address }}</div>
+          </div>
+        </div>
+
+        <!-- Appointment Information -->
+        <div class="column">
+          <h3>Appointment Details</h3>
+
+          <div class="info-item">
+            <div class="info-label">Type of Appointment</div>
+            <div class="info-value">{{ appointment.get_appointment_type_display }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Requested Date</div>
+            <div class="info-value">{{ appointment.appointment_date|date:"M d, Y" }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+              <span class="badge">{{ appointment.get_status_display }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Patient Notes</div>
+            <div class="info-value">
+              {{ appointment.notes|default:"No additional notes provided." }}
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Submitted On</div>
+            <div class="info-value">{{ appointment.created_at|date:"M d, Y \a\t h:i A" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assignment Form -->
+      <form method="POST" action="{% url 'assign_appointment' appointment.id %}">
+        {% csrf_token %}
+
+        <h3 style="color: #1c2f6c; margin-bottom: 20px; margin-top: 30px; padding-top: 30px; border-top: 2px solid #f0f0f0;">
+          Assign to Doctor
+        </h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="doctor_id">Select Doctor <span class="required">*</span></label>
+            <select id="doctor_id" name="doctor_id" required>
+              <option value="">-- Choose a Doctor --</option>
+              {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">
+                  Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                  {% if doctor.profile.department %}({{ doctor.profile.department }}){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointment_date">Appointment Date <span class="required">*</span></label>
+            <input type="date" id="appointment_date" name="appointment_date" 
+                   value="{{ appointment.appointment_date|date:'Y-m-d' }}" required>
+          </div>
+
+          <div class="form-group">
+            <label for="appointment_time">Appointment Time (Optional)</label>
+            <input type="time" id="appointment_time" name="appointment_time">
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions" style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary">Confirm Assignment</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

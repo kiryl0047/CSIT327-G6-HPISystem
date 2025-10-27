@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - HPIS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: #1c2f6c;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 20px;
+    }
+
+    header nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    header a:hover {
+      text-decoration: underline;
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      flex: 1;
+      max-width: 1200px;
+      margin: 20px auto;
+      gap: 20px;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 20px;
+      height: fit-content;
+    }
+
+    .sidebar h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #1c2f6c;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a, .sidebar button {
+      display: block;
+      padding: 10px 15px;
+      color: #555;
+      text-decoration: none;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .sidebar a:hover, .sidebar button:hover {
+      background: #f0f0f0;
+      color: #1c2f6c;
+    }
+
+    .sidebar a.active, .sidebar button.active {
+      background: #1c2f6c;
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 30px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section h2 {
+      font-size: 24px;
+      margin-bottom: 25px;
+      color: #1c2f6c;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 15px;
+    }
+
+    /* Messages */
+    .messages {
+      margin-bottom: 20px;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .alert-success {
+      background: #c8e6c9;
+      color: #2e7d32;
+      border-left: 4px solid #2e7d32;
+    }
+
+    .alert-error {
+      background: #ffcdd2;
+      color: #c62828;
+      border-left: 4px solid #c62828;
+    }
+
+    .alert-warning {
+      background: #fff9c4;
+      color: #f57f17;
+      border-left: 4px solid #f57f17;
+    }
+
+    .alert-info {
+      background: #bbdefb;
+      color: #1565c0;
+      border-left: 4px solid #1565c0;
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      max-width: 500px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #1c2f6c;
+      box-shadow: 0 0 0 3px rgba(28, 47, 108, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .profile-display {
+      padding: 12px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #666;
+      max-width: 500px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 30px;
+      margin-bottom: 20px;
+    }
+
+    .password-requirements {
+      list-style: none;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .password-requirements li {
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+      color: #666;
+    }
+
+    .password-requirements li::before {
+      content: "✖";
+      position: absolute;
+      left: 0;
+      color: #d32f2f;
+    }
+
+    .password-requirements li.valid::before {
+      content: "✓";
+      color: #388e3c;
+    }
+
+    .password-requirements li.valid {
+      color: #388e3c;
+    }
+
+    /* Notification Item */
+    .notification-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: #f9f9f9;
+    }
+
+    .notification-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notification-label strong {
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .notification-label span {
+      font-size: 13px;
+      color: #777;
+    }
+
+    /* Privacy Option */
+    .privacy-option {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: #f9f9f9;
+    }
+
+    .privacy-option strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .privacy-option p {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .privacy-option a,
+    .privacy-option button {
+      padding: 8px 16px;
+      background: #1c2f6c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s;
+    }
+
+    .privacy-option a:hover,
+    .privacy-option button:hover {
+      background: #15224d;
+    }
+
+    .privacy-option button.delete-btn {
+      background: #f44336;
+    }
+
+    .privacy-option button.delete-btn:hover {
+      background: #d32f2f;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    button.btn-primary {
+      background: #1c2f6c;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+
+    button.btn-primary:hover {
+      background: #15224d;
+    }
+
+    button.btn-secondary {
+      background: #757575;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+
+    button.btn-secondary:hover {
+      background: #616161;
+    }
+
+    button.btn-danger {
+      background: #f44336;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+
+    button.btn-danger:hover {
+      background: #d32f2f;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      color: #1c2f6c;
+    }
+
+    .modal-content p {
+      margin-bottom: 20px;
+      color: #666;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* Access Logs Table */
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .logs-table th {
+      background: #f0f0f0;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #ddd;
+      font-size: 13px;
+    }
+
+    .logs-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      font-size: 13px;
+    }
+
+    .logs-table tr:hover {
+      background: #f9f9f9;
+    }
+
+    /* Footer */
+    footer {
+      background: #f0f0f0;
+      padding: 20px 30px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #1c2f6c;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      button.btn-primary, button.btn-secondary, button.btn-danger {
+        width: 100%;
+      }
+
+      .logs-table {
+        font-size: 12px;
+      }
+
+      .logs-table th, .logs-table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Settings - HPIS</h1>
+    <nav>
+      <a href="{% url 'homepage' %}">Home</a>
+      <a href="{% url 'user_login' %}">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3>Settings Menu</h3>
+      <ul>
+        <li><a href="#" class="nav-link active" onclick="showSection('profile', event)">User Profile</a></li>
+        <li><a href="#" class="nav-link" onclick="showSection('password', event)">Reset Password</a></li>
+        <li><a href="#" class="nav-link" onclick="showSection('notifications', event)">Notifications</a></li>
+        <li><a href="#" class="nav-link" onclick="showSection('privacy', event)">Data & Privacy</a></li>
+        <li><a href="#" class="nav-link" onclick="showSection('logs', event)">Access Logs</a></li>
+        <li><a href="{% url 'logout' %}" class="nav-link" style="color: #f44336;">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Messages -->
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- User Profile Section -->
+      <div id="profile" class="section active">
+        <h2>User Profile</h2>
+
+        <form method="POST" action="{% url 'update_profile' %}">
+          {% csrf_token %}
+          <div class="profile-grid">
+            <div class="form-group">
+              <label>Username</label>
+              <div class="profile-display">{{ user.username }}</div>
+            </div>
+
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" name="first_name" value="{{ user.first_name }}">
+            </div>
+
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" name="last_name" value="{{ user.last_name }}">
+            </div>
+
+            <div class="form-group">
+              <label>Member Since</label>
+              <div class="profile-display">{{ user.date_joined|date:"M d, Y" }}</div>
+            </div>
+
+            <div class="form-group">
+              <label>Last Login</label>
+              <div class="profile-display">
+                {% if user.last_login %}
+                  {{ user.last_login|date:"M d, Y \a\t h:i A" }}
+                {% else %}
+                  Never
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <button type="reset" class="btn-secondary">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Reset Password Section -->
+      <div id="password" class="section">
+        <h2>Reset Password</h2>
+
+        <form method="POST" action="{% url 'change_password' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="oldPassword">Current Password</label>
+            <input type="password" id="oldPassword" name="old_password" required>
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="new_password1" required onkeyup="validatePassword()">
+            <ul class="password-requirements">
+              <li id="req-length">At least 8 characters</li>
+              <li id="req-uppercase">One uppercase letter</li>
+              <li id="req-number">One number</li>
+              <li id="req-special">One special character (!@#$%)</li>
+            </ul>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="new_password2" required>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn-primary">Update Password</button>
+            <button type="reset" class="btn-secondary">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Notifications Section -->
+      <div id="notifications" class="section">
+        <h2>Notification Preferences</h2>
+
+        <form method="POST" action="{% url 'update_notifications' %}">
+          {% csrf_token %}
+
+          <div class="notification-item">
+            <div class="notification-label">
+              <strong>Email Notifications</strong>
+              <span>Receive appointment reminders via email</span>
+            </div>
+            <input type="checkbox" name="email_notifications" {% if notification_pref.email_notifications %}checked{% endif %}>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-label">
+              <strong>SMS Notifications</strong>
+              <span>Receive appointment reminders via SMS</span>
+            </div>
+            <input type="checkbox" name="sms_notifications" {% if notification_pref.sms_notifications %}checked{% endif %}>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-label">
+              <strong>Prescription Alerts</strong>
+              <span>Get notified when prescription refills are available</span>
+            </div>
+            <input type="checkbox" name="prescription_alerts" {% if notification_pref.prescription_alerts %}checked{% endif %}>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-label">
+              <strong>System Updates</strong>
+              <span>Receive important system and security updates</span>
+            </div>
+            <input type="checkbox" name="system_updates" {% if notification_pref.system_updates %}checked{% endif %}>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn-primary">Save Preferences</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Data Privacy Section -->
+      <div id="privacy" class="section">
+        <h2>Data Privacy & Security</h2>
+
+        <div class="privacy-option">
+          <strong>Download Your Data</strong>
+          <p>Download a copy of all your personal data in CSV format.</p>
+          <a href="{% url 'download_user_data' %}">Download Data</a>
+        </div>
+
+        <div class="privacy-option">
+          <strong>Request Data Export</strong>
+          <p>Request a comprehensive export of all your data (processed within 24 hours).</p>
+          <form method="POST" action="{% url 'request_data_export' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Request Export</button>
+          </form>
+        </div>
+
+        <div class="privacy-option">
+          <strong>View Access Logs</strong>
+          <p>See a history of all accesses to your account and data.</p>
+          <a href="#" onclick="showSection('logs', event)">View Access Logs</a>
+        </div>
+
+        <div class="privacy-option">
+          <strong>Delete Your Account</strong>
+          <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+          <button type="button" class="delete-btn" onclick="showDeleteAccountModal()">Delete Account</button>
+        </div>
+
+        <div class="alert alert-info" style="margin-top: 20px;">
+          💡 Your data is encrypted and protected according to healthcare privacy standards (HIPAA).
+        </div>
+      </div>
+
+      <!-- Access Logs Section -->
+      <div id="logs" class="section">
+        <h2>Access Logs</h2>
+        <p style="color: #666; margin-bottom: 20px;">View your recent account activity and security events.</p>
+
+        {% if access_logs %}
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Activity Type</th>
+              <th>IP Address</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in access_logs %}
+            <tr>
+              <td>{{ log.timestamp|date:"M d, Y H:i" }}</td>
+              <td>{{ log.get_access_type_display }}</td>
+              <td>{{ log.ip_address|default:"N/A" }}</td>
+              <td>{{ log.description|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">
+          No access logs found.
+        </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+
+  <!-- Delete Account Modal -->
+  <div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+      <h3>Delete Account</h3>
+      <p><strong>⚠️ Warning:</strong> This action is permanent and cannot be undone. Your account will be scheduled for deletion in 30 days after confirmation.</p>
+
+      <form method="POST" action="{% url 'request_account_deletion' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="reason">Reason for deletion (optional):</label>
+          <textarea id="reason" name="reason" placeholder="Tell us why you're leaving..."></textarea>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn-secondary" onclick="closeModal('deleteAccountModal')">Cancel</button>
+          <button type="submit" class="btn-danger">Delete Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <a href="#">Contact Us</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+    <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function showSection(sectionId, event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+
+      // Update sidebar active link
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function validatePassword() {
+      const pwd = document.getElementById('newPassword').value;
+
+      document.getElementById('req-length').classList.toggle('valid', pwd.length >= 8);
+      document.getElementById('req-uppercase').classList.toggle('valid', /[A-Z]/.test(pwd));
+      document.getElementById('req-number').classList.toggle('valid', /\d/.test(pwd));
+      document.getElementById('req-special').classList.toggle('valid', /[!@#$%^&*]/.test(pwd));
+    }
+
+    function showDeleteAccountModal() {
+      document.getElementById('deleteAccountModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

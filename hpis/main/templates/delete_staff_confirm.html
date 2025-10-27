@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Staff Account - HPIS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+      color: white;
+      padding: 20px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    header nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    header a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #1c2f6c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Warning Card */
+    .warning-card {
+      background: white;
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-top: 4px solid #f44336;
+    }
+
+    .warning-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .warning-icon {
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .warning-header h2 {
+      color: #f44336;
+      font-size: 24px;
+      margin: 0;
+    }
+
+    /* Content */
+    .warning-content {
+      margin-bottom: 30px;
+    }
+
+    .warning-content p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .warning-content p strong {
+      color: #333;
+    }
+
+    /* Staff Info */
+    .staff-info {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .staff-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .staff-info-item:last-child {
+      border-bottom: none;
+    }
+
+    .staff-info-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .staff-info-value {
+      color: #666;
+    }
+
+    /* Consequences */
+    .consequences {
+      background: #ffebee;
+      border-left: 4px solid #f44336;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+    }
+
+    .consequences h3 {
+      color: #f44336;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .consequences ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .consequences li {
+      color: #d32f2f;
+      font-size: 13px;
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .consequences li::before {
+      content: "⚠";
+      position: absolute;
+      left: 0;
+    }
+
+    /* Confirmation */
+    .confirmation-text {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      font-size: 14px;
+      color: #856404;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 35px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #d32f2f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    /* Footer */
+    footer {
+      background: #f0f0f0;
+      padding: 20px 30px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 30px auto;
+      }
+
+      .warning-card {
+        padding: 25px;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Delete Staff Account</h1>
+    <nav>
+      <a href="{% url 'super_admin_dashboard' %}">Dashboard</a>
+      <a href="{% url 'manage_staff' %}">Manage Staff</a>
+      <a href="{% url 'logout' %}">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <a href="{% url 'manage_staff' %}" class="back-link">← Back to Staff List</a>
+
+    <div class="warning-card">
+      <!-- Warning Header -->
+      <div class="warning-header">
+        <div class="warning-icon">⚠️</div>
+        <h2>Delete Staff Account</h2>
+      </div>
+
+      <!-- Warning Content -->
+      <div class="warning-content">
+        <p>You are about to permanently delete the account for:</p>
+      </div>
+
+      <!-- Staff Info -->
+      <div class="staff-info">
+        <div class="staff-info-item">
+          <span class="staff-info-label">Name:</span>
+          <span class="staff-info-value">{{ staff_user.first_name }} {{ staff_user.last_name }}</span>
+        </div>
+        <div class="staff-info-item">
+          <span class="staff-info-label">Username:</span>
+          <span class="staff-info-value">{{ staff_user.username }}</span>
+        </div>
+        <div class="staff-info-item">
+          <span class="staff-info-label">Email:</span>
+          <span class="staff-info-value">{{ staff_user.email }}</span>
+        </div>
+        <div class="staff-info-item">
+          <span class="staff-info-label">Role:</span>
+          <span class="staff-info-value">
+            {% if staff_user.profile.role == 'admin' %}
+              Admin
+            {% elif staff_user.profile.role == 'doctor' %}
+              Doctor
+            {% else %}
+              {{ staff_user.profile.get_role_display }}
+            {% endif %}
+          </span>
+        </div>
+        <div class="staff-info-item">
+          <span class="staff-info-label">Account Created:</span>
+          <span class="staff-info-value">{{ staff_user.date_joined|date:"M d, Y" }}</span>
+        </div>
+      </div>
+
+      <!-- Consequences -->
+      <div class="consequences">
+        <h3>⚠️ This action will:</h3>
+        <ul>
+          <li>Permanently delete this staff account</li>
+          <li>Remove all associated credentials and permissions</li>
+          <li>Prevent this person from accessing the system</li>
+          <li>Delete all access logs for this user</li>
+          <li>This action CANNOT be undone</li>
+        </ul>
+      </div>
+
+      <!-- Confirmation Text -->
+      <div class="confirmation-text">
+        <strong>Are you absolutely sure?</strong> Please confirm you want to delete this account. This is a permanent action.
+      </div>
+
+      <!-- Delete Form -->
+      <form method="POST" action="{% url 'delete_staff' staff_user.id %}">
+        {% csrf_token %}
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-danger">Yes, Delete This Account</button>
+          <a href="{% url 'manage_staff' %}" class="btn btn-secondary">Cancel - Keep Account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
