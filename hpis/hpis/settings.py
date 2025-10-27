@@ -38,7 +38,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'healthcarePatientInformationSystem.urls'
+ROOT_URLCONF = 'hpis.urls'
 
 TEMPLATES = [
     {
@@ -57,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'healthcarePatientInformationSystem.wsgi.application'
+WSGI_APPLICATION = 'hpis.wsgi.application'
 
 # Database
 # Configure to use Supabase PostgreSQL via Session Pooler
