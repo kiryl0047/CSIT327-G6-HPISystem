@@ -213,7 +213,8 @@ def create_staff(request):
             alphabet = string.ascii_letters + string.digits + string.punctuation
             temp_password = get_random_string(12, alphabet)
             # Create user with temporary password
-            temp_password = User.objects.make_random_password(12)
+            # temp_password = User.objects.make_random_password(12)
+            temp_password = 123456
             user = User.objects.create_user(
                 username=username,
                 email=email,
