@@ -297,8 +297,20 @@
           </div>
 
           <div class="form-group">
-            <label>Department</label>
-            <input type="text" name="department" placeholder="e.g., Cardiology, General Practice">
+            <label>Department <span class="required">*</span></label>
+            <select name="department" required>
+              <option value="">Select department</option>
+              <option value="Cardiology">Cardiology</option>
+              <option value="Pediatrics">Pediatrics</option>
+              <option value="Radiology">Radiology</option>
+              <option value="Emergency">Emergency</option>
+              <option value="General Practice">General Practice</option>
+              <option value="Internal Medicine">Internal Medicine</option>
+              <option value="Surgery">Surgery</option>
+              <option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option>
+              <option value="Orthopedics">Orthopedics</option>
+              <option value="Neurology">Neurology</option>
+            </select>
           </div>
 
           <!-- Doctor-specific fields -->

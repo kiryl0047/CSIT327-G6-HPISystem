@@ -523,7 +523,12 @@
         <li><a href="#" class="nav-link" onclick="showSection('notifications', event)">Notifications</a></li>
         <li><a href="#" class="nav-link" onclick="showSection('privacy', event)">Data & Privacy</a></li>
         <li><a href="#" class="nav-link" onclick="showSection('logs', event)">Access Logs</a></li>
-        <li><a href="{% url 'logout' %}" class="nav-link" style="color: #f44336;">Logout</a></li>
+        <li>
+          <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link" style="background:none;border:none;color:#f44336;cursor:pointer;">Logout</button>
+          </form>
+        </li>
       </ul>
     </aside>
 

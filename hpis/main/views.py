@@ -30,7 +30,31 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+
+from django.views.decorators.cache import never_cache
+
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    request.session.flush()
+    return redirect('user_login')
+
+
 # ==================== Decorators ====================
+
+@never_cache
+@login_required
+def superadmin_dashboard(request):
+    ...
+
+@never_cache
+@login_required
+def admin_dashboard(request):
+    ...
 
 def get_client_ip(request):
     """Extract client IP address from request"""
