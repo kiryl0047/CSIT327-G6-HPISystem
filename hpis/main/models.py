@@ -178,3 +178,53 @@ class DeleteAccountRequest(models.Model):
         verbose_name = "Delete Account Request"
         verbose_name_plural = "Delete Account Requests"
         ordering = ['-requested_at']
+
+
+# Add to the end of models.py
+class Report(models.Model):
+    """Store generated reports"""
+
+    REPORT_TYPE_CHOICES = (
+        ('patient_records', 'Patient Records'),
+        ('appointments', 'Appointments'),
+        ('analytics', 'System Analytics'),
+        ('audit', 'Audit Trail'),
+    )
+
+    FORMAT_CHOICES = (
+        ('pdf', 'PDF'),
+        ('excel', 'Excel'),
+        ('csv', 'CSV'),
+    )
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
+    report_type = models.CharField(max_length=50, choices=REPORT_TYPE_CHOICES)
+    format = models.CharField(max_length=10, choices=FORMAT_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    # Filters
+    date_from = models.DateField(null=True, blank=True)
+    date_to = models.DateField(null=True, blank=True)
+
+    # File info
+    file_path = models.CharField(max_length=500, blank=True)
+    file_size = models.IntegerField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Report'
+        verbose_name_plural = 'Reports'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_report_type_display()} - {self.user.username}"

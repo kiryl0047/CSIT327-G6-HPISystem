@@ -18,11 +18,17 @@ from functools import wraps
 from .forms import LoginForm, CustomPasswordChangeForm, NotificationPreferencesForm, UserProfileForm
 from .models import (
     UserProfile, NotificationPreference, AccessLog,
-    DataExportRequest, DeleteAccountRequest, PatientAppointment
+    DataExportRequest, DeleteAccountRequest, PatientAppointment, Report
 )
 from django.db import transaction
 from django.core.mail import send_mail
-
+from django.http import HttpResponse
+import openpyxl
+from openpyxl.styles import Font, PatternFill
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 # ==================== Decorators ====================
 
@@ -880,3 +886,377 @@ def cancel_account_deletion(request):
     except DeleteAccountRequest.DoesNotExist:
         messages.error(request, 'No pending deletion request found.')
         return redirect('settings')
+
+@login_required
+@role_required('super_admin', 'admin', 'doctor')
+def analytics_dashboard(request):
+    role = request.user.role
+
+    if role == "Super Admin":
+        dashboard_url = "super_admin_dashboard"
+    elif role == "Admin":
+        dashboard_url = "admin_dashboard"
+    elif role == "Doctor":
+        dashboard_url = "doctor_dashboard"
+    else:
+        dashboard_url = "landing_page"  # fallback
+
+    return render(request, "analytics_dashboard.html", {
+        "dashboard_url": dashboard_url
+    })
+
+
+@login_required
+@role_required('super_admin', 'admin', 'doctor')
+def analytics_dashboard(request):
+    """Analytics dashboard with KPIs and visualizations"""
+    from django.db.models import Count, Q
+    from datetime import datetime, timedelta
+
+    # Calculate date ranges
+    today = timezone.now().date()
+    last_month = today - timedelta(days=30)
+
+    # Get appointments data
+    appointments = PatientAppointment.objects.all()
+
+    # KPIs
+    total_appointments = appointments.count()
+    pending_appointments = appointments.filter(status='pending').count()
+    confirmed_appointments = appointments.filter(status='confirmed').count()
+    completed_appointments = appointments.filter(status='completed').count()
+
+    # Monthly trend data
+    monthly_data = []
+    for i in range(11, -1, -1):
+        month_date = today - timedelta(days=30 * i)
+        month_start = month_date.replace(day=1)
+        if i > 0:
+            next_month = (month_date.replace(day=28) + timedelta(days=4)).replace(day=1)
+            month_end = next_month - timedelta(days=1)
+        else:
+            month_end = today
+
+        count = appointments.filter(
+            appointment_date__gte=month_start,
+            appointment_date__lte=month_end
+        ).count()
+
+        monthly_data.append({
+            'month': month_start.strftime('%b'),
+            'count': count
+        })
+
+    # Appointment types distribution
+    type_data = appointments.values('appointment_type').annotate(
+        count=Count('id')
+    )
+
+    # Status distribution
+    status_data = appointments.values('status').annotate(
+        count=Count('id')
+    )
+
+    # Department workload (based on doctor's department)
+    department_data = User.objects.filter(
+        profile__role='doctor'
+    ).values(
+        'profile__department'
+    ).annotate(
+        count=Count('assigned_appointments')
+    ).order_by('-count')[:5]
+
+    context = {
+        'total_appointments': total_appointments,
+        'pending_appointments': pending_appointments,
+        'confirmed_appointments': confirmed_appointments,
+        'completed_appointments': completed_appointments,
+        'monthly_data': json.dumps(list(monthly_data)),
+        'type_data': json.dumps(list(type_data)),
+        'status_data': json.dumps(list(status_data)),
+        'department_data': json.dumps(list(department_data)),
+    }
+
+    log_access(request.user, 'data_view', 'Accessed analytics dashboard', request)
+
+    return render(request, 'analytics_dashboard.html', context)
+
+@login_required
+def generate_report(request):
+    """Generate and download reports"""
+    if request.method == 'POST':
+        report_type = request.POST.get('report_type')
+        format_type = request.POST.get('format', 'csv')
+        date_from = request.POST.get('date_from')
+        date_to = request.POST.get('date_to')
+
+        # Create report record
+        from .models import Report  # Import the Report model
+
+        report = Report.objects.create(
+            user=request.user,
+            report_type=report_type,
+            format=format_type,
+            date_from=date_from if date_from else None,
+            date_to=date_to if date_to else None,
+            status='processing',
+            expires_at=timezone.now() + timedelta(days=7)
+        )
+
+        # Generate report based on type
+        try:
+            if report_type == 'appointments':
+                report_data = generate_appointments_report(date_from, date_to)
+            elif report_type == 'patient_records':
+                report_data = generate_patient_records_report(date_from, date_to)
+            elif report_type == 'analytics':
+                report_data = generate_analytics_report(date_from, date_to)
+            elif report_type == 'audit':
+                report_data = generate_audit_report(date_from, date_to)
+            else:
+                raise ValueError('Invalid report type')
+
+            # Export based on format
+            if format_type == 'csv':
+                file_content = export_to_csv(report_data)
+                content_type = 'text/csv'
+                filename = f'{report_type}_{timezone.now().strftime("%Y%m%d")}.csv'
+            elif format_type == 'excel':
+                file_content = export_to_excel(report_data)
+                content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                filename = f'{report_type}_{timezone.now().strftime("%Y%m%d")}.xlsx'
+            elif format_type == 'pdf':
+                file_content = export_to_pdf(report_data)
+                content_type = 'application/pdf'
+                filename = f'{report_type}_{timezone.now().strftime("%Y%m%d")}.pdf'
+
+            report.status = 'completed'
+            report.completed_at = timezone.now()
+            report.save()
+
+            log_access(request.user, 'data_download', f'Generated {report_type} report', request)
+
+            # Return file
+            response = HttpResponse(file_content, content_type=content_type)
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        except Exception as e:
+            report.status = 'failed'
+            report.save()
+            messages.error(request, f'Error generating report: {str(e)}')
+            return redirect('reports')
+
+    # GET request - show report generation form
+    context = {
+        'report_types': [
+            ('appointments', 'Appointments Report'),
+            ('patient_records', 'Patient Records Report'),
+            ('analytics', 'System Analytics Report'),
+            ('audit', 'Audit Trail Report'),
+        ],
+        'formats': [
+            ('csv', 'CSV'),
+            ('excel', 'Excel (XLSX)'),
+            ('pdf', 'PDF'),
+        ]
+    }
+    return render(request, 'analytics_dashboard.html', context)
+
+
+def generate_appointments_report(date_from, date_to):
+    """Generate appointments report data"""
+    appointments = PatientAppointment.objects.all()
+
+    if date_from:
+        appointments = appointments.filter(appointment_date__gte=date_from)
+    if date_to:
+        appointments = appointments.filter(appointment_date__lte=date_to)
+
+    data = []
+    for appt in appointments:
+        data.append({
+            'Date': appt.appointment_date.strftime('%Y-%m-%d'),
+            'Time': appt.appointment_time.strftime('%H:%M') if appt.appointment_time else 'N/A',
+            'Patient': f'{appt.first_name} {appt.last_name}',
+            'Email': appt.email,
+            'Contact': appt.contact_number,
+            'Type': appt.get_appointment_type_display(),
+            'Status': appt.get_status_display(),
+            'Doctor': appt.assigned_doctor.get_full_name() if appt.assigned_doctor else 'Unassigned',
+            'Created': appt.created_at.strftime('%Y-%m-%d %H:%M'),
+        })
+
+    return data
+
+
+def generate_patient_records_report(date_from, date_to):
+    """Generate patient records report data"""
+    appointments = PatientAppointment.objects.all()
+
+    if date_from:
+        appointments = appointments.filter(created_at__date__gte=date_from)
+    if date_to:
+        appointments = appointments.filter(created_at__date__lte=date_to)
+
+    # Group by patient
+    patient_data = {}
+    for appt in appointments:
+        patient_key = f"{appt.first_name} {appt.last_name}"
+        if patient_key not in patient_data:
+            patient_data[patient_key] = {
+                'Name': patient_key,
+                'Email': appt.email,
+                'Contact': appt.contact_number,
+                'DOB': appt.date_of_birth.strftime('%Y-%m-%d'),
+                'Gender': appt.get_gender_display(),
+                'Address': appt.address,
+                'Total_Appointments': 0,
+                'Last_Visit': None
+            }
+
+        patient_data[patient_key]['Total_Appointments'] += 1
+        if patient_data[patient_key]['Last_Visit'] is None or appt.appointment_date > patient_data[patient_key][
+            'Last_Visit']:
+            patient_data[patient_key]['Last_Visit'] = appt.appointment_date.strftime('%Y-%m-%d')
+
+    return list(patient_data.values())
+
+
+def generate_analytics_report(date_from, date_to):
+    """Generate system analytics report data"""
+    from django.db.models import Count, Q
+
+    appointments = PatientAppointment.objects.all()
+
+    if date_from:
+        appointments = appointments.filter(appointment_date__gte=date_from)
+    if date_to:
+        appointments = appointments.filter(appointment_date__lte=date_to)
+
+    # Calculate statistics
+    stats = appointments.aggregate(
+        total=Count('id'),
+        pending=Count('id', filter=Q(status='pending')),
+        assigned=Count('id', filter=Q(status='assigned')),
+        confirmed=Count('id', filter=Q(status='confirmed')),
+        completed=Count('id', filter=Q(status='completed')),
+        cancelled=Count('id', filter=Q(status='cancelled')),
+    )
+
+    # Appointment types
+    type_stats = appointments.values('appointment_type').annotate(count=Count('id'))
+
+    data = [
+        {'Metric': 'Total Appointments', 'Value': stats['total']},
+        {'Metric': 'Pending Appointments', 'Value': stats['pending']},
+        {'Metric': 'Assigned Appointments', 'Value': stats['assigned']},
+        {'Metric': 'Confirmed Appointments', 'Value': stats['confirmed']},
+        {'Metric': 'Completed Appointments', 'Value': stats['completed']},
+        {'Metric': 'Cancelled Appointments', 'Value': stats['cancelled']},
+        {'Metric': '', 'Value': ''},  # Separator
+        {'Metric': 'Appointment Types:', 'Value': ''},
+    ]
+
+    for type_stat in type_stats:
+        data.append({
+            'Metric': f"  {dict(PatientAppointment.APPOINTMENT_TYPE_CHOICES).get(type_stat['appointment_type'], type_stat['appointment_type'])}",
+            'Value': type_stat['count']
+        })
+
+    return data
+
+
+def generate_audit_report(date_from, date_to):
+    """Generate audit trail report data"""
+    logs = AccessLog.objects.all()
+
+    if date_from:
+        logs = logs.filter(timestamp__date__gte=date_from)
+    if date_to:
+        logs = logs.filter(timestamp__date__lte=date_to)
+
+    logs = logs.order_by('-timestamp')[:500]  # Limit to 500 most recent
+
+    data = []
+    for log in logs:
+        data.append({
+            'Timestamp': log.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'User': log.user.username,
+            'User_Email': log.user.email,
+            'Access_Type': log.get_access_type_display(),
+            'IP_Address': log.ip_address or 'N/A',
+            'Description': log.description or 'N/A',
+        })
+
+    return data
+
+
+def export_to_csv(data):
+    """Export data to CSV format"""
+    output = StringIO()
+
+    if data:
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+
+    return output.getvalue().encode('utf-8')
+
+
+def export_to_excel(data):
+    """Export data to Excel format"""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Report"
+
+    if data:
+        # Headers
+        headers = list(data[0].keys())
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+
+        # Data
+        for row_num, row_data in enumerate(data, 2):
+            for col_num, value in enumerate(row_data.values(), 1):
+                ws.cell(row=row_num, column=col_num, value=str(value))
+
+    output = BytesIO()
+    wb.save(output)
+    return output.getvalue()
+
+
+def export_to_pdf(data):
+    """Export data to PDF format"""
+    output = BytesIO()
+    doc = SimpleDocTemplate(output, pagesize=A4)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    title = Paragraph("<b>System Report</b>", styles['Title'])
+    elements.append(title)
+
+    if data:
+        # Convert data to table format
+        table_data = [list(data[0].keys())]  # Headers
+        for row in data:
+            table_data.append([str(v) for v in row.values()])
+
+        table = Table(table_data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+
+        elements.append(table)
+
+    doc.build(elements)
+    return output.getvalue()
