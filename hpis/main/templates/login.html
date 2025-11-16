@@ -7,11 +7,60 @@
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #e6f0f7, #f4f6f9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
       margin: 0;
+    }
+
+    .main-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .login-page-content {
+        flex-grow: 1;
+        background: linear-gradient(135deg, #e6f0f7, #f4f6f9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+      color: white;
+      padding: 15px 5%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    header nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      transition: background 0.3s;
+      font-weight: 500;
+    }
+
+    header a:hover {
+      background: rgba(255,255,255,0.2);
     }
 
     .login-container {
@@ -131,33 +180,44 @@
   </style>
 </head>
 <body>
-  <div class="login-container" id="alert-box">
-    <h2>Welcome to the HPIS Login Portal</h2>
+    <div class="main-wrapper">
+        <header>
+            <h1>🏥 Healthcare Patient Information System</h1>
+            <nav>
+                <a href="{% url 'landing_page' %}">Book Appointment</a>
+                <a href="{% url 'user_login' %}">Staff Login</a>
+            </nav>
+        </header>
 
-    {% if messages %}
-      <div class="alert-messages">
-        {% for message in messages %}
-        <p>{{ message }}</p>
-        {% endfor %}
-      </div>
-    {% endif %}
+        <div class="login-page-content">
+            <div class="login-container" id="alert-box">
+                <h2>Welcome to the HPIS Login Portal</h2>
+                {% if messages %}
+                  <div class="alert-messages">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
 
-    <form method="POST" action="">
-      {% csrf_token %}
+                <form method="POST" action="">
+                  {% csrf_token %}
 
-      <label for="id_username">Username or Email</label>
-      <input type="text" id="id_username" name="username" required>
+                  <label for="id_username">Username or Email</label>
+                  <input type="text" id="id_username" name="username" required>
 
-      <label for="id_password">Password</label>
-      <input type="password" id="id_password" name="password" required>
+                  <label for="id_password">Password</label>
+                  <input type="password" id="id_password" name="password" required>
 
-      <div class="remember-me">
-        <input type="checkbox" name="remember_me" id="remember_me">
-        <label for="remember_me">Remember Me</label>
-      </div>
+                  <div class="remember-me">
+                    <input type="checkbox" name="remember_me" id="remember_me">
+                    <label for="remember_me">Remember Me</label>
+                  </div>
 
-      <button type="submit">Login</button>
-    </form>
-  </div>
+                  <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

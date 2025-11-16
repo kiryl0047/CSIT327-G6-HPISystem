@@ -33,6 +33,10 @@ urlpatterns = [
     path("settings/download-user-data", views.download_user_data, name="download_user_data"),
     path("settings/request-data-export", views.request_data_export, name="request_data_export"),
     path("settings/request-account-deletion", views.request_account_deletion, name="request_account_deletion"),
-    path("login/", views.user_login, name="user_login"),
     path('records/', include('records.urls')),
+
+    # Analytics & Reports URLs
+    path("analytics/", views.analytics_dashboard, name="analytics_dashboard"),
+    path("analytics/reports/", views.generate_report, name="reports"),
+    path("homepage/", views.analytics_dashboard, name="dashboard_url"),
 ]
