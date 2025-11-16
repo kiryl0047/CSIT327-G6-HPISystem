@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Settings & Consent - HPIS</title>
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #1c2f6c;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 20px;
+    }
+
+    header nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    header nav a:hover {
+      text-decoration: underline;
+    }
+
+
+    .content-area {
+      flex: 1;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      font-size: 24px;
+      color: #1c2f6c;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #e1e4eb;
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 18px;
+      color: #333;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+
+ 
+    .form-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #e1e4eb;
+      border-radius: 8px;
+      background-color: #fcfdff;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .checkbox-group, .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px 30px;
+    }
+
+    .checkbox-group label, .radio-group label {
+      display: inline-flex;
+      align-items: center;
+      font-weight: normal;
+      cursor: pointer;
+      margin-bottom: 0;
+      color: #333;
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      accent-color: #007bff; 
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 45px;
+      height: 25px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 25px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 17px;
+      width: 17px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #1c2f6c;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Audit Trail Table */
+    .audit-trail table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .audit-trail th, .audit-trail td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .audit-trail th {
+      background-color: #f7f9fc;
+      color: #1c2f6c;
+      font-weight: 600;
+    }
+    .audit-trail tr:hover {
+      background-color: #f0f5ff;
+    }
+    .audit-trail .change-type {
+        font-weight: bold;
+        color: #007bff;
+    }
+    .audit-trail .change-type.revoked {
+        color: #dc3545;
+    }
+    .audit-trail .change-type.granted {
+        color: #28a745;
+    }
+
+    /* Action Buttons and Messages */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+
+    .btn-primary {
+      background-color: #1c2f6c;
+      color: white;
+      margin-right: 15px;
+    }
+    .btn-primary:hover {
+      background-color: #15224d;
+      transform: translateY(-1px);
+    }
+    
+    .message-box {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      display: none; /* Hidden by default */
+      animation: fadeIn 0.5s;
+    }
+
+    .message-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer - Matching existing HPIS files */
+    footer {
+      background: #f1f1f1;
+      color: #666;
+      padding: 15px 30px;
+      text-align: center;
+      margin-top: auto;
+      border-top: 1px solid #e1e4eb;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      header nav {
+        margin-top: 10px;
+      }
+      header nav a {
+        margin-left: 0;
+        margin-right: 15px;
+      }
+      .content-area {
+        margin-top: 15px;
+        padding: 0 10px;
+      }
+      .card {
+        padding: 15px;
+      }
+      .checkbox-group, .radio-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+   
+  <header>
+    <h1>HPIS</h1>
+    <nav>
+   
+      <a href="homepage.html">Home</a>
+      <a href="settings.html">Account</a>
+      <a href="#">Logout</a>
+    </nav>
+  </header>
+
+
+  <div class="content-area">
+    <h1>Privacy Settings & Consent Management</h1>
+    <p style="margin-bottom: 25px; color: #555;">
+      As a patient, you have full transparency and control over how your personal health information is used. Review and update your preferences below.
+    </p>
+
+ 
+    <div id="messageBox" class="message-box" role="alert" style="display: none;"></div>
+
+    <form id="privacyForm">
+
+   
+      <div class="card" id="consent-management">
+        <h2>1. Data Consent (Data Sharing, Research, Marketing)</h2>
+        <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+            Grant or revoke consent for specific uses of your anonymized health data.
+        </p>
+        
+        <div class="form-group">
+          <label for="dataSharing">Consent for **Data Sharing** with authorized external providers</label>
+          <div class="radio-group">
+            <label><input type="radio" name="dataSharing" value="Yes" checked> Yes, I consent</label>
+            <label><input type="radio" name="dataSharing" value="No"> No, I do not consent</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="researchConsent">Consent for **Research** (anonymized studies and clinical trials)</label>
+          <div class="radio-group">
+            <label><input type="radio" name="researchConsent" value="Yes" checked> Yes, I consent</label>
+            <label><input type="radio" name="researchConsent" value="No"> No, I do not consent</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="marketingConsent">Consent for **Marketing** communications (health tips, promotional offers)</label>
+          <div class="radio-group">
+            <label><input type="radio" name="marketingConsent" value="Yes"> Yes, I consent</label>
+            <label><input type="radio" name="marketingConsent" value="No" checked> No, I do not consent</label>
+          </div>
+        </div>
+      </div>
+
+    
+      <div class="card" id="privacy-levels">
+        <h2>2. Access and Privacy Levels</h2>
+        <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+            Determine the general visibility of your records and specific permissions for your care team.
+        </p>
+
+        <div class="form-group">
+          <label for="privacyLevel">Overall **Privacy Level**</label>
+          <div class="radio-group">
+            <label><input type="radio" name="privacyLevel" value="Full" checked> Full (All information visible to approved care team)</label>
+            <label><input type="radio" name="privacyLevel" value="Partial"> Partial (Sensitive notes/diagnoses restricted)</label>
+            <label><input type="radio" name="privacyLevel" value="Minimal"> Minimal (Only necessary contact/appointment info visible)</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Default **Access Permissions** for your Primary Physician</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="permissions" value="View" checked> View Records</label>
+            <label><input type="checkbox" name="permissions" value="Edit"> Edit/Annotate (Requires verbal confirmation)</label>
+            <label><input type="checkbox" name="permissions" value="Download"> Download (For referrals/transfer)</label>
+            <label><input type="checkbox" name="permissions" value="Delete"> Delete Records (Highly restricted, for admin use only)</label>
+          </div>
+        </div>
+      </div>
+
+    
+      <div class="card" id="notification-settings">
+        <h2>3. Notification and Policy Tracking</h2>
+        
+        <div class="form-group">
+          <label>Email Notification on Privacy Changes</label>
+          <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Receive an email alert whenever your privacy settings are modified by you or an administrator.</p>
+          <label class="toggle-switch">
+            <input type="checkbox" id="emailNotification" name="emailNotification" checked>
+            <span class="slider"></span>
+          </label>
+          <span style="margin-left: 15px;">Status: <strong id="notificationStatus">Enabled</strong></span>
+        </div>
+      </div>
+
+
+      <div class="card audit-trail">
+        <h2>4. Audit Trail (Track and Control Changes)</h2>
+        <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+            Review the history of consent and privacy setting changes on your account.
+        </p>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date/Time</th>
+                <th>Type</th>
+                <th>Field</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+              </tr>
+            </thead>
+            <tbody id="auditTrailBody">
+              <tr>
+                <td>2025-10-20 09:30 AM</td>
+                <td class="change-type granted">Consent Granted</td>
+                <td>Research Consent</td>
+                <td>No</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>2025-08-15 02:45 PM</td>
+                <td class="change-type revoked">Consent Revoked</td>
+                <td>Marketing Consent</td>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>2025-07-01 11:00 AM</td>
+                <td class="change-type">Settings Update</td>
+                <td>Privacy Level</td>
+                <td>Partial</td>
+                <td>Full</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button type="submit" class="btn btn-primary" id="saveBtn">Save Privacy Settings</button>
+      </div>
+
+    </form>
+  </div>
+
+
+  <footer>
+    <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+  </footer>
+
+  <script>
+
+    let currentSettings = {
+        dataSharing: 'Yes',
+        researchConsent: 'Yes',
+        marketingConsent: 'No',
+        privacyLevel: 'Full',
+        permissions: ['View', 'Download'],
+        emailNotification: true
+    };
+
+    const form = document.getElementById('privacyForm');
+    const saveBtn = document.getElementById('saveBtn');
+    const messageBox = document.getElementById('messageBox');
+    const notificationToggle = document.getElementById('emailNotification');
+    const notificationStatus = document.getElementById('notificationStatus');
+
+ 
+    function displayMessage(type, message) {
+        messageBox.textContent = message;
+        messageBox.className = 'message-box'; 
+        messageBox.classList.add(`message-${type}`);
+        messageBox.style.display = 'block';
+
+       
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+        }, 5000);
+    }
+
+   
+    function loadSettings() {
+     
+        document.querySelectorAll(`input[name="dataSharing"][value="${currentSettings.dataSharing}"]`)[0].checked = true;
+        document.querySelectorAll(`input[name="researchConsent"][value="${currentSettings.researchConsent}"]`)[0].checked = true;
+        document.querySelectorAll(`input[name="marketingConsent"][value="${currentSettings.marketingConsent}"]`)[0].checked = true;
+        document.querySelectorAll(`input[name="privacyLevel"][value="${currentSettings.privacyLevel}"]`)[0].checked = true;
+        
+     
+        document.querySelectorAll('input[name="permissions"]').forEach(checkbox => {
+            checkbox.checked = currentSettings.permissions.includes(checkbox.value);
+        });
+
+       
+        notificationToggle.checked = currentSettings.emailNotification;
+        notificationStatus.textContent = currentSettings.emailNotification ? 'Enabled' : 'Disabled';
+    }
+
+   
+    notificationToggle.addEventListener('change', () => {
+        currentSettings.emailNotification = notificationToggle.checked;
+        notificationStatus.textContent = notificationToggle.checked ? 'Enabled' : 'Disabled';
+    });
+
+
+ 
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        
+       
+        const isDeleteChecked = document.querySelector('input[name="permissions"][value="Delete"]').checked;
+        const selectedPrivacyLevel = document.querySelector('input[name="privacyLevel"]:checked').value;
+
+        if (isDeleteChecked && selectedPrivacyLevel !== 'Partial') {
+            setTimeout(() => {
+                displayMessage('error', 'Invalid selection: The "Delete Records" permission requires the "Partial" privacy level for security reasons. Cannot proceed.');
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Privacy Settings';
+            }, 800);
+            return; // Stop the save process
+        }
+
+        // --- 2. Gather New Settings ---
+        const newSettings = {
+            dataSharing: document.querySelector('input[name="dataSharing"]:checked').value,
+            researchConsent: document.querySelector('input[name="researchConsent"]:checked').value,
+            marketingConsent: document.querySelector('input[name="marketingConsent"]:checked').value,
+            privacyLevel: selectedPrivacyLevel,
+            permissions: Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value),
+            emailNotification: notificationToggle.checked
+        };
+        
+        // --- 3. Simulated Save Process ---
+        setTimeout(() => {
+            // Update in-memory settings (simulating successful database write)
+            currentSettings = newSettings;
+            
+            // Success Message
+            displayMessage('success', 'Privacy settings saved successfully! Changes reflected immediately.');
+            
+            // Reset button
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Privacy Settings';
+            
+            // Optional: Re-render audit trail or just ensure the form reflects the saved state
+            // (In a real app, this would trigger a database write and UI update)
+
+        }, 1500); // Simulate network delay
+    });
+
+    // Initial load
+    window.onload = loadSettings;
+  </script>
+
+</body>
+</html>
