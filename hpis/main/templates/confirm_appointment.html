@@ -275,14 +275,15 @@
             </div>
           </div>
 
+          {% load custom_filters %}
           <div class="info-item">
             <div class="info-label">Date of Birth</div>
-            <div class="info-value">
-              {{ appointment.date_of_birth|date:"M d, Y" }}
-              <span style="color: #999; font-size: 12px;">
-                (Age: {% widthratio appointment.date_of_birth now %})
-              </span>
-            </div>
+              <div class="info-value">
+                {{ appointment.date_of_birth|date:"M d, Y" }}
+                <span style="color: #999; font-size: 12px;">
+                  (Age: {{ appointment.date_of_birth|calculate_age }})
+                </span>
+              </div>
           </div>
 
           <div class="info-item">
