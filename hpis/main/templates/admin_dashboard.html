@@ -61,6 +61,17 @@
       margin-bottom: 30px;
       font-size: 28px;
     }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .section-header h2 {
+        margin: 0;
+    }
 
     /* Dashboard Grid */
     .dashboard-grid {
@@ -92,8 +103,8 @@
       color: #1c2f6c;
     }
 
-    /* Appointments Section */
-    .appointments-section {
+    /* General Section Box Styling (used for Appointments and Records) */
+    .data-section {
       background: white;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -101,12 +112,44 @@
       margin-bottom: 30px;
     }
 
-    .appointments-section h3 {
+    .data-section h3 {
       color: #1c2f6c;
       margin-bottom: 20px;
       font-size: 18px;
       padding-bottom: 15px;
       border-bottom: 2px solid #f0f0f0;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #1c2f6c;
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #15224d;
+    }
+    
+    .btn-secondary {
+      background-color: #38a169;
+      color: white;
+      border: none;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #2b8455;
     }
 
     /* Tabs */
@@ -259,7 +302,6 @@
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <h1>📋 Admin Dashboard</h1>
     <nav>
@@ -269,11 +311,38 @@
     </nav>
   </header>
 
-  <!-- Main Container -->
   <div class="container">
-    <h2>Appointment Management</h2>
+    
+    <div class="section-header">
+        <h2>Patient Records</h2>
+        {% if user.profile.role == 'doctor' or user.profile.role == 'admin' %}
+            <a href="{% url 'records_list' %}" class="btn btn-secondary"><i class="fa-solid fa-list"></i> View All Records</a>
+        {% endif %}
+    </div>
+    
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <h3>Total Records</h3>
+        <div class="number">{{ total_records_count|default:"0" }}</div>
+      </div>
+      <div class="stat-card">
+        <h3>My Patients</h3>
+        <div class="number">{{ my_patients_count|default:"0" }}</div>
+      </div>
+      <div class="stat-card">
+        <h3>New This Month</h3>
+        <div class="number">{{ new_this_month_count|default:"0" }}</div>
+      </div>
+    </div>
+    
+    <div class="section-header">
+        <h2>Appointment Management</h2>
+        {% if user.profile.role == 'doctor' or user.profile.role == 'admin' %}
+            <a href="{% url 'create_patient_record' %}" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i> Add Patient Record</a>
+        {% endif %}
+    </div>
 
-    <!-- Statistics -->
+
     <div class="dashboard-grid">
       <div class="stat-card">
         <h3>Pending</h3>
@@ -289,17 +358,14 @@
       </div>
     </div>
 
-    <!-- Appointments Section -->
-    <div class="appointments-section">
+    <div class="data-section">
       <h3>Patient Appointments</h3>
 
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab-btn active" onclick="showTab('pending')">Pending Appointments</button>
         <button class="tab-btn" onclick="showTab('assigned')">Assigned Appointments</button>
       </div>
 
-      <!-- Pending Appointments -->
       <div id="pending" class="tab-content">
         {% if pending_appointments %}
           <table class="appointments-table">
@@ -345,7 +411,6 @@
         {% endif %}
       </div>
 
-      <!-- Assigned Appointments -->
       <div id="assigned" class="tab-content" style="display: none;">
         <table class="appointments-table">
           <thead>
@@ -382,7 +447,6 @@
 
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
   </footer>

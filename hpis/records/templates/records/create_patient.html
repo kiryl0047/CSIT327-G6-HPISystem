@@ -1,0 +1,507 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+/* Global Resets/Vars */
+:root {
+    --color-primary: #007bff; /* Brighter Blue for a modern look */
+    --color-primary-dark: #0056b3;
+    --color-secondary: #6c757d;
+    --color-bg-light: #f4f6f9; /* Soft background */
+    --color-white: #ffffff;
+    --color-border: #d3d9e0;
+    --color-text: #333;
+    --color-red: #dc3545;
+}
+
+body {
+    background-color: var(--color-bg-light);
+    color: var(--color-text);
+}
+
+/* --- Page Header --- */
+.page-header {
+    max-width: 900px;
+    margin: 20px auto 30px auto;
+    padding: 0 20px;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 10px;
+}
+
+.page-header h2 {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.page-header p {
+    color: var(--color-secondary);
+    font-size: 15px;
+}
+
+/* --- Form Container --- */
+.form-container {
+    background: var(--color-white);
+    padding: 40px; /* Increased padding */
+    border-radius: 12px; /* Softer corners */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Stronger, modern shadow */
+    max-width: 900px;
+    margin: 0 auto 50px auto; /* Centered form */
+}
+
+/* Headings */
+.subsection-header {
+    font-size: 1.25rem;
+    color: var(--color-primary-dark);
+    border-left: 5px solid var(--color-primary);
+    padding: 5px 10px;
+    margin: 30px 0 20px 0;
+    font-weight: 600;
+}
+
+/* --- Tab Navigation (UX Improvement) --- */
+.tab-nav {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; /* To overlap the border-bottom slightly */
+}
+
+.tab-btn:hover {
+    color: var(--color-primary-dark);
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    border-bottom: 3px solid var(--color-primary);
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.4s;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Form Grid and Groups --- */
+.form-grid {
+    display: grid;
+    /* Adjusted grid to 3 columns max on large screens for better density */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 30px; /* Increased gap for better spacing */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    color: #555;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1; /* Full width across all columns */
+}
+
+/* --- Form Controls/Inputs --- */
+/* Targetting .form-control class applied by forms.py widgets */
+.form-control,
+.form-group select,
+.form-group textarea,
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"] {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    outline: none;
+}
+
+/* Textarea sizes */
+.textarea-md {
+    min-height: 100px;
+    resize: vertical;
+}
+.textarea-lg {
+    min-height: 150px;
+    resize: vertical;
+}
+
+/* Photo Upload Group */
+.photo-upload-group input[type="file"] {
+    /* File inputs need different styling */
+    padding: 0;
+    border: none;
+    height: auto;
+}
+
+.photo-preview-box {
+    border: 2px dashed var(--color-border);
+    border-radius: 8px;
+    text-align: center;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.photo-preview-box:hover {
+    border-color: var(--color-primary);
+}
+
+.photo-upload-placeholder {
+    display: block;
+    color: var(--color-secondary);
+    font-size: 14px;
+}
+
+.photo-upload-placeholder i {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* --- Actions --- */
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 30px;
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.btn-secondary {
+    background-color: #e9ecef;
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background-color: #d8dee3;
+}
+
+/* Required Indicator */
+.required {
+    color: var(--color-red);
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+/* --- Table Styles (Appointment History) --- */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.appointment-history {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.appointment-history th,
+.appointment-history td {
+    padding: 12px 15px;
+    font-size: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+.appointment-history th {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.appointment-history tr:last-child td {
+    border-bottom: none;
+}
+
+.appointment-history tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Status Badges */
+.status-completed { color: #28a745; font-weight: 600; }
+.status-pending { color: #ffc107; font-weight: 600; }
+.status-cancelled { color: var(--color-red); font-weight: 600; }
+.text-center { text-align: center; font-style: italic; color: var(--color-secondary);}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px;
+        margin: 0 10px 30px 10px;
+    }
+    .form-grid {
+        gap: 20px;
+        grid-template-columns: 1fr;
+    }
+    .form-group.full-width {
+        grid-column: auto;
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .form-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+    .tab-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+</style>
+
+<div class="page-header">
+    <h2><i class="fa-solid fa-file-medical"></i> Patient Record Form</h2>
+    <p>Please enter or update the patient's comprehensive medical information.</p>
+</div>
+
+<div class="form-container" id="create-record">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'create_patient_record' %}">
+        {% csrf_token %}
+        <div class="tab-nav">
+            <button type="button" class="tab-btn active" data-tab="personal"><i class="fa-solid fa-user"></i> Personal Info</button>
+            <button type="button" class="tab-btn" data-tab="clinical"><i class="fa-solid fa-stethoscope"></i> Clinical Info</button>
+            <button type="button" class="tab-btn" data-tab="notes"><i class="fa-solid fa-notes-medical"></i> Clinical Notes</button>
+            {% if record %}
+            <button type="button" class="tab-btn" data-tab="history"><i class="fa-solid fa-calendar-check"></i> History & Metadata</button>
+            {% endif %}
+        </div>
+
+        <div class="tab-content active" id="personal">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.full_name.id_for_label }}">Full Name <span class="required">*</span></label>
+                    {{ form.full_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth <span class="required">*</span></label>
+                    {{ form.date_of_birth }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.age.id_for_label }}">Age (Years)</label>
+                    {{ form.age }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.gender.id_for_label }}">Gender <span class="required">*</span></label>
+                    {{ form.gender }}
+                </div>
+
+                <div class="form-group full-width photo-upload-group">
+                    <label for="{{ form.photo.id_for_label }}">Patient Photo</label>
+                    <div class="photo-preview-box">
+                        <span class="photo-upload-placeholder"><i class="fa-solid fa-camera"></i> Upload Photo</span>
+                        {{ form.photo }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="clinical">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.department.id_for_label }}">Department <span class="required">*</span></label>
+                    {{ form.department }}
+                </div>
+
+                {% if user.profile.role != 'doctor' %}
+                <div class="form-group">
+                    <label for="{{ form.attending_physician.id_for_label }}">Attending Physician <span class="required">*</span></label>
+                    {{ form.attending_physician }}
+                </div>
+                {% endif %}
+
+                <div class="form-group full-width">
+                    <label for="{{ form.diagnosis.id_for_label }}">Diagnosis <span class="required">*</span></label>
+                    {{ form.diagnosis }}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="notes">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="{{ form.allergies.id_for_label }}">Allergies</label>
+                    {{ form.allergies }}
+                </div>
+                <div class="form-group full-width">
+                    <label for="{{ form.medications.id_for_label }}">Medications</label>
+                    {{ form.medications }}
+                </div>
+                <div class="form-group full-width">
+                    <label for="{{ form.vitals.id_for_label }}">Vitals</label>
+                    {{ form.vitals }}
+                </div>
+            </div>
+        </div>
+
+        {% if record %}
+        <div class="tab-content" id="history">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Record Created At</label>
+                    <input type="text" value="{{ record.created_at|date:'Y-m-d H:i' }}" class="form-control" readonly>
+                </div>
+            </div>
+
+            <h4 class="subsection-header"><i class="fa-solid fa-clock-rotate-left"></i> Appointment History</h4>
+            <div class="table-responsive">
+                <table class="appointment-history">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in record.patient_appointments.all %}
+                        <tr>
+                            <td>{{ appt.appointment_date }}</td>
+                            <td>{{ appt.get_appointment_type_display }}</td>
+                            <td><span class="status-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center">No previous appointments found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Record</button>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()"><i class="fa-solid fa-circle-xmark"></i> Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Tab Switching Logic
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+
+                // Deactivate all tabs and content
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Activate the selected tab and content
+                btn.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // NEW: Age Calculation Logic for automatic update
+        const dobInput = document.getElementById('id_date_of_birth');
+        const ageInput = document.getElementById('id_age');
+
+        function calculateAge() {
+            const dobValue = dobInput.value;
+            if (dobValue) {
+                const birthDate = new Date(dobValue);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
+                
+                // Adjust age if current month/day is before birth month/day
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                ageInput.value = age;
+            } else {
+                ageInput.value = '';
+            }
+        }
+
+        // Attach event listener to calculate age when DOB changes
+        if (dobInput && ageInput) {
+            dobInput.addEventListener('change', calculateAge);
+            // Also calculate on load if the field is already populated (for edit view)
+            calculateAge(); 
+        }
+
+    });
+</script>
+
+{% endblock %}

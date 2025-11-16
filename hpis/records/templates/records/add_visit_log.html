@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+/* Reusing core styles for consistency */
+:root {
+    --color-primary: #007bff;
+    --color-primary-dark: #0056b3;
+    --color-secondary: #6c757d;
+    --color-bg-light: #f4f6f9;
+    --color-white: #ffffff;
+    --color-border: #d3d9e0;
+    --color-text: #333;
+    --color-green: #28a745;
+}
+
+body {
+    background-color: var(--color-bg-light);
+    color: var(--color-text);
+}
+
+.page-header {
+    max-width: 900px;
+    margin: 20px auto 30px auto;
+    padding: 0 20px;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 10px;
+}
+
+.page-header h2 {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.page-header p {
+    color: var(--color-secondary);
+    font-size: 15px;
+}
+
+.form-container {
+    background: var(--color-white);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    max-width: 900px;
+    margin: 0 auto 50px auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack log fields vertically */
+    gap: 30px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    color: #555;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-control,
+.form-group textarea {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    outline: none;
+}
+
+.textarea-md {
+    min-height: 100px;
+    resize: vertical;
+}
+.textarea-lg {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 30px;
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-green);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background-color: #1e8736;
+}
+
+.btn-secondary {
+    background-color: #e9ecef;
+    color: var(--color-text);
+}
+</style>
+
+<div class="page-header">
+    <h2><i class="fa-solid fa-file-medical"></i> Add New Clinical Visit Log</h2>
+    <p>Creating a new history entry for patient: <strong>{{ patient.full_name }}</strong> (ID: {{ patient.pk }}).</p>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{% url 'add_visit_log' pk=patient.pk %}">
+        {% csrf_token %}
+
+        <h3 style="color: var(--color-primary-dark); border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">Visit Details ({{ "now"|date:"M d, Y" }})</h3>
+        
+        <div class="form-grid">
+            
+            <div class="form-group full-width">
+                <label for="{{ log_form.diagnosis.id_for_label }}">Diagnosis</label>
+                {{ log_form.diagnosis }}
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="{{ log_form.vitals.id_for_label }}">Vitals</label>
+                {{ log_form.vitals }}
+            </div>
+
+            <div class="form-group full-width">
+                <label for="{{ log_form.medications.id_for_label }}">Medications</label>
+                {{ log_form.medications }}
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="{{ log_form.allergies.id_for_label }}">Allergies</label>
+                {{ log_form.allergies }}
+            </div>
+
+            {% for field in log_form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+            
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Visit Log</button>
+            <a href="{% url 'patient_record_detail' pk=patient.pk %}" class="btn-secondary btn"><i class="fa-solid fa-arrow-left"></i> Cancel and Go Back</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

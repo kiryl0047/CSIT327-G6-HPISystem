@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from django.contrib.auth.views import LogoutView
 from . import views
 
@@ -19,6 +19,7 @@ urlpatterns = [
     # Admin URLs
     path("admin-panel/dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("admin-panel/assign-appointment/<int:appointment_id>/", views.assign_appointment, name="assign_appointment"),
+    path('records/', include('records.urls')),
 
     # Doctor URLs
     path("doctor/dashboard/", views.doctor_dashboard, name="doctor_dashboard"),
@@ -32,4 +33,6 @@ urlpatterns = [
     path("settings/download-user-data", views.download_user_data, name="download_user_data"),
     path("settings/request-data-export", views.request_data_export, name="request_data_export"),
     path("settings/request-account-deletion", views.request_account_deletion, name="request_account_deletion"),
+    path("login/", views.user_login, name="user_login"),
+    path('records/', include('records.urls')),
 ]

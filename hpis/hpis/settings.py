@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',  # Your app
+    'records',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
