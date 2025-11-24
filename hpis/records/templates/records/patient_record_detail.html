@@ -1,354 +1,138 @@
-<style>
-/* --- Styles adapted to match the dashboard's navy blue theme --- */
-:root {
-    /* ADAPTED COLORS */
-    --color-primary: #1c2f6c; /* Dashboard Header/Button Blue */
-    --color-primary-dark: #15224d; /* Darker navy */
-    
-    --color-secondary: #6c757d;
-    --color-bg-light: #f4f6f9;
-    --color-white: #ffffff;
-    --color-border: #d3d9e0;
-    --color-text: #333;
-    --color-red: #dc3545;
-    --color-green: #2e7d32; /* Using the badge-assigned green from the dashboard */
-    --color-info: #495057; /* A neutral dark color for log entry headers */
-}
-
-body {
-    background-color: var(--color-bg-light);
-    color: var(--color-text);
-}
-
-.page-header {
-    max-width: 900px;
-    margin: 20px auto 30px auto;
-    padding: 0 20px;
-    border-bottom: 2px solid var(--color-border);
-    padding-bottom: 10px;
-}
-
-.page-header h2 {
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
-}
-
-.page-header p {
-    color: var(--color-secondary);
-    font-size: 15px;
-}
-
-/* --- Container for Detail View --- */
-.detail-container {
-    background: var(--color-white);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    max-width: 900px;
-    margin: 0 auto 50px auto;
-}
-
-.subsection-header {
-    font-size: 1.25rem;
-    color: var(--color-primary-dark);
-    border-left: 5px solid var(--color-primary); /* Uses the navy blue */
-    padding: 5px 10px;
-    margin: 30px 0 20px 0;
-    font-weight: 600;
-}
-
-/* --- Detail Grid (For Static Info) --- */
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px 30px;
-    margin-bottom: 20px;
-}
-
-.detail-group {
-    padding: 10px 0;
-}
-
-.detail-label {
-    display: block;
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--color-secondary);
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.detail-value {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text);
-    padding: 8px 12px;
-    border-radius: 6px;
-    background-color: var(--color-bg-light);
-    border: 1px solid var(--color-border);
-}
-
-.detail-value-large {
-    grid-column: 1 / -1;
-    white-space: pre-wrap;
-    min-height: 80px;
-}
-
-/* --- Photo --- */
-.photo-box {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    padding: 15px 0;
-    border-bottom: 1px dashed var(--color-border);
-}
-
-.patient-photo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--color-primary); /* Uses the navy blue */
-}
-
-/* --- Actions --- */
-.top-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
-}
-
-.btn-primary, .btn-secondary, .btn-success, .btn-info {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: background-color 0.3s;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-primary {
-    background-color: var(--color-primary); /* Navy Blue */
-    color: var(--color-white);
-}
-
-.btn-primary:hover {
-    background-color: var(--color-primary-dark);
-}
-
-.btn-secondary {
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-}
-
-.btn-success {
-    background-color: var(--color-green); /* Dark Green */
-    color: var(--color-white);
-}
-
-.btn-success:hover {
-    background-color: #2b8455;
-}
-
-/* --- Visit Log History Styles --- */
-.visit-log-entry {
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-}
-
-.log-header {
-    background-color: var(--color-info); /* Neutral dark for contrast */
-    color: var(--color-white);
-    padding: 12px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    justify-content: space-between;
-}
-
-.log-content {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.log-item p {
-    margin-bottom: 5px;
-    font-size: 15px;
-}
-
-.log-item strong {
-    color: var(--color-primary-dark);
-    display: block;
-    font-size: 13px;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-}
-
-.log-item.full-width {
-    grid-column: 1 / -1;
-}
-
-.text-center { 
-    text-align: center; 
-    font-style: italic; 
-    color: var(--color-secondary);
-    padding: 15px;
-}
-
-@media (max-width: 768px) {
-    .detail-container { padding: 20px; }
-    .detail-grid { grid-template-columns: 1fr; }
-    .top-actions { flex-direction: column; }
-    .top-actions a { justify-content: center; }
-    .log-content { grid-template-columns: 1fr; }
-    .log-header { flex-direction: column; gap: 5px; }
-}
-</style>
-
+{% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
-    <div class="page-header">
-        <h2><i class="fa-solid fa-folder-open"></i> Patient Record Detail</h2>
-        <p>Viewing comprehensive medical record for {{ record.full_name }}.</p>
+<style>
+    .record-container {
+        max-width: 900px;
+        margin: 30px auto;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        padding: 25px;
+    }
+
+    .record-header {
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+
+    .record-header h2 {
+        font-weight: 600;
+        color: #1c2f6c; /* navy */
+        margin: 0;
+    }
+
+    .record-header p {
+        color: #6c757d;
+        margin: 5px 0 0;
+    }
+
+    .record-detail p {
+        margin: 8px 0;
+        font-size: 0.95rem;
+        color: #343a40;
+    }
+
+    .record-detail strong {
+        color: #0056b3;
+    }
+
+    .visit-log {
+        margin-top: 30px;
+    }
+
+    .visit-log h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1c2f6c;
+        margin-bottom: 15px;
+    }
+
+    .visit-log-entry {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+    }
+
+    .visit-log-entry p {
+        margin: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #1c2f6c;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #15224d;
+    }
+</style>
+
+<div class="record-container">
+    <div class="record-header">
+        <h2><i class="fa-solid fa-user"></i> Patient Record</h2>
+        <p>Detailed information for patient {{ record.full_name }}</p>
     </div>
 
-    <div class="detail-container">
+    <div class="record-detail">
+        <p><strong>Patient Code:</strong> {{ record.patient_code }}</p>
+        <p><strong>Record ID:</strong> {{ record.pk }}</p>
+        <p><strong>Full Name:</strong> {{ record.full_name }}</p>
+        <p><strong>Date of Birth:</strong> {{ record.date_of_birth|default:"N/A" }}</p>
+        <p><strong>Age:</strong> {{ record.age|default:"N/A" }}</p>
+        <p><strong>Gender:</strong> {{ record.get_gender_display }}</p>
+        <p><strong>Department:</strong> {{ record.department|capfirst }}</p>
+        <p><strong>Attending Physician:</strong> {{ record.attending_physician.get_full_name|default:record.attending_physician.username }}</p>
+        <p><strong>Created At:</strong> {{ record.created_at|date:"Y-m-d H:i" }}</p>
+        {% if record.photo %}
+            <p><strong>Photo:</strong><br>
+                <img src="{{ record.photo.url }}" alt="Patient Photo" style="max-width:150px; border-radius:8px; margin-top:10px;">
+            </p>
+        {% endif %}
+    </div>
 
-        <div class="top-actions">
-            <a href="{% url 'add_visit_log' pk=record.pk %}" class="btn-success btn"><i class="fa-solid fa-notes-medical"></i> Add New Clinical Log</a>
-            <a href="{% url 'update_patient_record' pk=record.pk %}" class="btn-primary btn"><i class="fa-solid fa-user-pen"></i> Edit Static Info</a>
-            <a href="{% url 'records_list' %}" class="btn-secondary btn"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
-        </div>
-
-        <h3 class="subsection-header"><i class="fa-solid fa-user"></i> Personal Information</h3>
-        <div class="photo-box">
-            {% if record.photo %}
-                <img src="{{ record.photo.url }}" alt="{{ record.full_name }} Photo" class="patient-photo">
-            {% else %}
-                <div class="patient-photo" style="background-color: #ccc; display: flex; align-items: center; justify-content: center; font-size: 24px;"><i class="fa-solid fa-user-xmark"></i></div>
-            {% endif %}
-            <div>
-                <span class="detail-label">Full Name</span>
-                <div class="detail-value" style="font-size: 20px;">{{ record.full_name }}</div>
+    <div class="visit-log">
+        <h3><i class="fa-solid fa-notes-medical"></i> Recent Visit Logs</h3>
+        {% for log in record.visit_history.all|slice:":3" %}
+            <div class="visit-log-entry">
+                <p><strong>Date:</strong> {{ log.visit_date|date:"Y-m-d H:i" }}</p>
+                <p><strong>Clinician:</strong> {{ log.clinician.get_full_name|default:log.clinician.username }}</p>
+                <p><strong>Diagnosis:</strong> {{ log.diagnosis|default:"N/A" }}</p>
+                <p><strong>Vitals:</strong> {{ log.vitals|default:"N/A" }}</p>
+                <p><strong>Allergies:</strong> {{ log.allergies|default:"N/A" }}</p>
+                <p><strong>Medications:</strong> {{ log.medications|default:"N/A" }}</p>
             </div>
-        </div>
-
-        <div class="detail-grid">
-            <div class="detail-group">
-                <span class="detail-label">Date of Birth</span>
-                <div class="detail-value">{{ record.date_of_birth|default:"N/A" }}</div>
-            </div>
-            <div class="detail-group">
-                <span class="detail-label">Age (Years)</span>
-                <div class="detail-value">{{ record.age|default:"N/A" }}</div>
-            </div>
-            <div class="detail-group">
-                <span class="detail-label">Gender</span>
-                <div class="detail-value">{{ record.get_gender_display|default:"N/A" }}</div>
-            </div>
-        </div>
-
-        <h3 class="subsection-header"><i class="fa-solid fa-stethoscope"></i> Administrative Details</h3>
-        <div class="detail-grid">
-            <div class="detail-group">
-                <span class="detail-label">Department</span>
-                <div class="detail-value">{{ record.department }}</div>
-            </div>
-            <div class="detail-group">
-                <span class="detail-label">Attending Physician</span>
-                <div class="detail-value">{{ record.attending_physician.get_full_name|default:record.attending_physician.username }}</div>
-            </div>
-            <div class="detail-group">
-                <span class="detail-label">Record Created</span>
-                <div class="detail-value">{{ record.created_at|date:"M d, Y H:i" }}</div>
-            </div>
-        </div>
-
-        <h3 class="subsection-header"><i class="fa-solid fa-clock-rotate-left"></i> Clinical Visit History ({{ record.visit_history.count }} Logs)</h3>
-        
-        {% for log in record.visit_history.all %}
-        <div class="visit-log-entry">
-            <div class="log-header">
-                <span>
-                    <i class="fa-solid fa-calendar-check"></i> 
-                    Visit Date: {{ log.visit_date|date:"M d, Y" }}
-                </span>
-                <span>
-                    <i class="fa-solid fa-user-md"></i> 
-                    Clinician: {{ log.clinician.get_full_name|default:log.clinician.username }}
-                </span>
-            </div>
-            <div class="log-content">
-                <div class="log-item full-width">
-                    <strong>Diagnosis</strong>
-                    <p>{{ log.diagnosis|default:"No diagnosis recorded for this visit." }}</p>
-                </div>
-                
-                <div class="log-item">
-                    <strong>Vitals</strong>
-                    <p>{{ log.vitals|default:"Vitals not recorded." }}</p>
-                </div>
-                <div class="log-item">
-                    <strong>Allergies (Updated)</strong>
-                    <p>{{ log.allergies|default:"No updated allergies recorded." }}</p>
-                </div>
-                <div class="log-item full-width">
-                    <strong>Medications (Updated)</strong>
-                    <p>{{ log.medications|default:"No medications recorded for this visit." }}</p>
-                </div>
-            </div>
-        </div>
         {% empty %}
-            <p class="text-center">No clinical history logs found for this patient.</p>
+            <p class="text-center">No visit logs recorded yet.</p>
         {% endfor %}
-
-        <h3 class="subsection-header"><i class="fa-solid fa-calendar-alt"></i> Appointment History</h3>
-        <div class="table-responsive">
-            {% if record.patient_appointments.all %}
-            <table class="appointment-history">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for appt in record.patient_appointments.all %}
-                    <tr>
-                        <td>{{ appt.appointment_date|date:"Y-m-d" }}</td>
-                        <td>{{ appt.get_appointment_type_display }}</td>
-                        <td><span class="status-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-                <p class="text-center">No previous appointments found for this patient.</p>
-            {% endif %}
-        </div>
-
-        <div class="top-actions">
-            <a href="{% url 'add_visit_log' pk=record.pk %}" class="btn-success btn"><i class="fa-solid fa-notes-medical"></i> Add New Clinical Log</a>
-            <a href="{% url 'update_patient_record' pk=record.pk %}" class="btn-primary btn"><i class="fa-solid fa-user-pen"></i> Edit Static Info</a>
-            <a href="{% url 'records_list' %}" class="btn-secondary btn"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
-        </div>
-
     </div>
+
+    <div style="margin-top:20px;">
+        <a href="{% url 'update_patient_record' pk=record.pk %}" class="btn-primary">
+            <i class="fa-solid fa-pen"></i> Edit Record
+        </a>
+        <a href="{% url 'add_visit_log' pk=record.pk %}" class="btn-primary">
+            <i class="fa-solid fa-file-medical"></i> Add Visit Log
+        </a>
+        <a href="{% url 'download_patient_pdf' pk=record.pk %}" class="btn-primary">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </a>
+    </div>
+</div>
 
 {% endblock %}
