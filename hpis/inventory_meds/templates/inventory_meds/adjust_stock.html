@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+        header { background: #1c2f6c; color: white; padding: 15px 30px; }
+        .container { max-width: 700px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 10px; }
+        .btn-primary { background: #1c2f6c; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .info-box { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .info-box strong { display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ title }}</h1>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <div class="info-box">
+                <strong>{{ medicine.name }}</strong>
+                <p>Current Stock: <strong>{{ medicine.quantity_on_hand }} {{ medicine.unit }}</strong></p>
+                <p>Reorder Level: {{ medicine.reorder_level }}</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Adjustment Type</label>
+                    {{ form.adjustment_type }}
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    {{ form.quantity }}
+                </div>
+                <div class="form-group">
+                    <label>Batch Number (optional)</label>
+                    {{ form.batch_number }}
+                </div>
+                <div class="form-group">
+                    <label>Reason (required)</label>
+                    {{ form.reason }}
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary">Save Adjustment</button>
+                    <a href="{% url 'inventory_meds:view_medicine' medicine.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

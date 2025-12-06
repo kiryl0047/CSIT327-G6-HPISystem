@@ -23,10 +23,33 @@
       color: white;
       padding: 20px 30px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     header h1 {
       font-size: 24px;
+      font-weight: 600;
+    }
+
+    header nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: rgba(255,255,255,0.1);
     }
 
     /* Main Container */
@@ -246,6 +269,12 @@
   <!-- Header -->
   <header>
     <h1>Confirm Appointment</h1>
+    <nav>
+      <a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+      <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+      <a href="{% url 'settings' %}">Settings</a>
+      <a href="{% url 'user_login' %}">Logout</a>
+    </nav>
   </header>
 
   <!-- Main Container -->

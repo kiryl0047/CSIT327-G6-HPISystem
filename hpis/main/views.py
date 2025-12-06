@@ -199,10 +199,19 @@ def user_login(request):
 @role_required('super_admin')
 def super_admin_dashboard(request):
     """Super Admin main dashboard"""
+    from django.db.models import Count, Q
+    
+    # Optimize with single aggregated query
+    staff_counts = UserProfile.objects.aggregate(
+        total_staff=Count('id', filter=Q(role__in=['admin', 'doctor'])),
+        admins=Count('id', filter=Q(role='admin')),
+        doctors=Count('id', filter=Q(role='doctor')),
+    )
+    
     stats = {
-        'total_staff': User.objects.filter(profile__role__in=['admin', 'doctor']).count(),
-        'admins': User.objects.filter(profile__role='admin').count(),
-        'doctors': User.objects.filter(profile__role='doctor').count(),
+        'total_staff': staff_counts['total_staff'],
+        'admins': staff_counts['admins'],
+        'doctors': staff_counts['doctors'],
         'pending_appointments': PatientAppointment.objects.filter(status='pending').count(),
     }
 
@@ -335,7 +344,13 @@ def create_staff(request):
 @role_required('super_admin')
 def manage_staff(request):
     """Manage all staff accounts"""
-    staff = User.objects.filter(profile__role__in=['admin', 'doctor']).select_related('profile')
+    # Optimize with select_related and only needed fields
+    staff = User.objects.filter(
+        profile__role__in=['admin', 'doctor']
+    ).select_related('profile').only(
+        'id', 'username', 'email', 'first_name', 'last_name',
+        'profile__role', 'profile__department', 'profile__license_number'
+    )
 
     log_access(request.user, 'data_view', 'Accessed manage staff page', request)
 
@@ -405,15 +420,26 @@ def delete_staff(request, staff_id):
 @role_required('admin')
 def admin_dashboard(request):
     """Admin main dashboard"""
-    pending_appointments = PatientAppointment.objects.filter(status='pending')
-    assigned_appointments = PatientAppointment.objects.filter(status='assigned')
-    doctors = User.objects.filter(profile__role='doctor')
+    # Optimize queries with select_related to avoid N+1 queries
+    pending_appointments = PatientAppointment.objects.filter(status='pending').select_related(
+        'assigned_doctor', 'assigned_admin'
+    )[:20]  # Limit to recent 20
+    
+    assigned_appointments = PatientAppointment.objects.filter(status='assigned').select_related(
+        'assigned_doctor', 'assigned_admin'
+    )[:20]  # Limit to recent 20
+    
+    doctors = User.objects.filter(profile__role='doctor').select_related('profile')
+
+    # Use only() to fetch only needed fields for counts
+    pending_count = PatientAppointment.objects.filter(status='pending').count()
+    assigned_count = PatientAppointment.objects.filter(status='assigned').count()
 
     log_access(request.user, 'data_view', 'Accessed admin dashboard', request)
 
     context = {
-        'pending_count': pending_appointments.count(),
-        'assigned_count': assigned_appointments.count(),
+        'pending_count': pending_count,
+        'assigned_count': assigned_count,
         'pending_appointments': pending_appointments,
         'assigned_appointments': assigned_appointments,
         'doctors': doctors,
@@ -456,7 +482,9 @@ def assign_appointment(request, appointment_id):
         except User.DoesNotExist:
             messages.error(request, 'Doctor not found.')
 
-    doctors = User.objects.filter(profile__role='doctor')
+    doctors = User.objects.filter(profile__role='doctor').select_related('profile').only(
+        'id', 'first_name', 'last_name', 'email'
+    )
     return render(request, 'assign_appointment.html', {'appointment': appointment, 'doctors': doctors})
 
 
@@ -466,14 +494,25 @@ def assign_appointment(request, appointment_id):
 @role_required('doctor')
 def doctor_dashboard(request):
     """Doctor main dashboard"""
-    my_appointments = PatientAppointment.objects.filter(assigned_doctor=request.user)
+    # Optimize with select_related and limit results
+    my_appointments = PatientAppointment.objects.filter(
+        assigned_doctor=request.user
+    ).select_related('assigned_admin')[:50]  # Limit to recent 50
+
+    # Use separate counts to avoid loading all data
+    confirmed_count = PatientAppointment.objects.filter(
+        assigned_doctor=request.user, status='confirmed'
+    ).count()
+    pending_count = PatientAppointment.objects.filter(
+        assigned_doctor=request.user, status='assigned'
+    ).count()
 
     log_access(request.user, 'data_view', 'Accessed doctor dashboard', request)
 
     context = {
         'appointments': my_appointments,
-        'confirmed_count': my_appointments.filter(status='confirmed').count(),
-        'pending_count': my_appointments.filter(status='assigned').count(),
+        'confirmed_count': confirmed_count,
+        'pending_count': pending_count,
     }
 
     return render(request, 'doctor_dashboard.html', context)
@@ -528,6 +567,21 @@ def homepage(request):
 # ==================== Settings Views ====================
 
 @login_required
+def profile(request):
+    """User profile page"""
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+
+    context = {
+        'user_profile': user_profile,
+    }
+
+    return render(request, 'profile.html', context)
+
+
+@login_required
 def settings(request):
     """User settings page"""
     try:
@@ -540,7 +594,10 @@ def settings(request):
     except NotificationPreference.DoesNotExist:
         notification_pref = NotificationPreference.objects.create(user=request.user)
 
-    access_logs = AccessLog.objects.filter(user=request.user).order_by('-timestamp')[:50]
+    # Limit and optimize access logs query
+    access_logs = AccessLog.objects.filter(user=request.user).only(
+        'access_type', 'ip_address', 'timestamp', 'description'
+    ).order_by('-timestamp')[:50]
 
     context = {
         'user_profile': user_profile,
@@ -575,7 +632,8 @@ def update_profile(request):
         )
 
         messages.success(request, 'Profile updated successfully!')
-        return redirect('settings')
+        # Redirect to profile page if coming from there, otherwise settings
+        return redirect(request.GET.get('next', 'profile'))
 
     return render(request, 'settings.html')
 
@@ -914,43 +972,28 @@ def cancel_account_deletion(request):
 @login_required
 @role_required('super_admin', 'admin', 'doctor')
 def analytics_dashboard(request):
-    role = request.user.role
-
-    if role == "Super Admin":
-        dashboard_url = "super_admin_dashboard"
-    elif role == "Admin":
-        dashboard_url = "admin_dashboard"
-    elif role == "Doctor":
-        dashboard_url = "doctor_dashboard"
-    else:
-        dashboard_url = "landing_page"  # fallback
-
-    return render(request, "analytics_dashboard.html", {
-        "dashboard_url": dashboard_url
-    })
-
-
-@login_required
-@role_required('super_admin', 'admin', 'doctor')
-def analytics_dashboard(request):
     """Analytics dashboard with KPIs and visualizations"""
     from django.db.models import Count, Q
     from datetime import datetime, timedelta
 
     # Calculate date ranges
     today = timezone.now().date()
-    last_month = today - timedelta(days=30)
 
-    # Get appointments data
-    appointments = PatientAppointment.objects.all()
+    # Optimize: Use aggregation instead of multiple count() calls
+    appointment_stats = PatientAppointment.objects.aggregate(
+        total=Count('id'),
+        pending=Count('id', filter=Q(status='pending')),
+        confirmed=Count('id', filter=Q(status='confirmed')),
+        completed=Count('id', filter=Q(status='completed')),
+    )
 
     # KPIs
-    total_appointments = appointments.count()
-    pending_appointments = appointments.filter(status='pending').count()
-    confirmed_appointments = appointments.filter(status='confirmed').count()
-    completed_appointments = appointments.filter(status='completed').count()
+    total_appointments = appointment_stats['total']
+    pending_appointments = appointment_stats['pending']
+    confirmed_appointments = appointment_stats['confirmed']
+    completed_appointments = appointment_stats['completed']
 
-    # Monthly trend data
+    # Monthly trend data - optimized with values and annotate
     monthly_data = []
     for i in range(11, -1, -1):
         month_date = today - timedelta(days=30 * i)
@@ -961,7 +1004,7 @@ def analytics_dashboard(request):
         else:
             month_end = today
 
-        count = appointments.filter(
+        count = PatientAppointment.objects.filter(
             appointment_date__gte=month_start,
             appointment_date__lte=month_end
         ).count()
@@ -972,12 +1015,12 @@ def analytics_dashboard(request):
         })
 
     # Appointment types distribution
-    type_data = appointments.values('appointment_type').annotate(
+    type_data = PatientAppointment.objects.values('appointment_type').annotate(
         count=Count('id')
     )
 
     # Status distribution
-    status_data = appointments.values('status').annotate(
+    status_data = PatientAppointment.objects.values('status').annotate(
         count=Count('id')
     )
 

@@ -1,223 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #e6f0f7, #f4f6f9);
-      height: 100vh;
-      margin: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPIS Secure Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Your Brand Colors */
+            --brand-primary: #1c2f6c;
+            --brand-secondary: #3e53a2;
+            --brand-accent: #00c49f; /* Teal accent for health/success */
+            
+            /* UI Colors */
+            --bg-white: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #666666;
+            --border-light: #e0e0e0;
+            --input-bg: #ffffff;
+            --input-focus-shadow: rgba(28, 47, 108, 0.15);
+        }
 
-    .main-wrapper {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    .login-page-content {
-        flex-grow: 1;
-        background: linear-gradient(135deg, #e6f0f7, #f4f6f9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        box-sizing: border-box;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden; /* Prevent scrolling on full screen split */
+            background-color: var(--bg-white);
+        }
 
-    /* Header */
-    header {
-      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
-      color: white;
-      padding: 15px 5%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      box-sizing: border-box;
-    }
+        /* --- LAYOUT: SPLIT SCREEN --- */
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
 
-    header h1 {
-      font-size: 24px;
-      font-weight: 600;
-    }
+        /* --- LEFT SIDE: FORM --- */
+        .left-panel {
+            width: 50%;
+            padding: 40px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            overflow-y: auto; /* Allow scroll if screen is short */
+            position: relative;
+        }
 
-    header nav {
-      display: flex;
-      gap: 15px;
-    }
+        /* Branding Top Left */
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--brand-primary);
+        }
+        .brand-logo i {
+            font-size: 24px;
+        }
 
-    header a {
-      color: white;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 4px;
-      transition: background 0.3s;
-      font-weight: 500;
-    }
+        .login-header {
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+        }
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin: 0;
+        }
 
-    header a:hover {
-      background: rgba(255,255,255,0.2);
-    }
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 16px 12px 40px; /* Space for icon */
+            font-size: 15px;
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background: var(--input-bg);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px var(--input-focus-shadow);
+        }
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+        }
 
-    .login-container {
-      background: #f0f0f0;
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-      width: 340px;
-      text-align: center;
-      position: relative;
-    }
+        /* Actions Row (Remember / Forgot) */
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .remember-me input {
+            accent-color: var(--brand-primary);
+            width: 16px;
+            height: 16px;
+        }
+        .forgot-pass {
+            color: var(--brand-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .forgot-pass:hover {
+            text-decoration: underline;
+        }
 
-    .login-container::before {
-      content: "";
-      position: absolute;
-      top: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 80px;
-      background: url() no-repeat center; /* <-- Put logo here */
-      background-size: contain;
-    }
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: 8px;
+        }
+        .btn-primary {
+            background-color: var(--brand-primary);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #152355; /* Darker shade */
+            transform: translateY(-1px);
+        }
+        
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .divider span {
+            padding: 0 10px;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-    .login-container h2 {
-      margin-top: 50px;
-      margin-bottom: 25px;
-      color: #2f2f2f;
-      text-transform: uppercase;
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+        }
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            border-color: #d0d0d0;
+        }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: #444;
-      font-size: 14px;
-      text-align: left;
-    }
+        /* Footer */
+        .login-footer {
+            margin-top: auto;
+            padding-top: 30px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .login-footer a {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
 
-    input, button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
+        /* Error Styling */
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: -10px 0 15px 0;
+            font-size: 13px;
+            color: #d32f2f;
+        }
 
-    input {
-      border: 1px solid #ccc;
-      margin-bottom: 15px;
-      outline: none;
-    }
+        /* --- RIGHT SIDE: VISUALS --- */
+        .right-panel {
+            width: 50%;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: white;
+            padding: 40px;
+            overflow: hidden;
+        }
 
-    input:focus {
-      border-color: #1c2f6c;
-      box-shadow: 0 0 6px rgba(28, 47, 108, 0.2);
-    }
+        .hero-content {
+            z-index: 2;
+            max-width: 480px;
+            text-align: center; /* Centered text for better balance */
+        }
+        .hero-content h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+        .hero-content p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+        }
 
-    button {
-      background: #1c2f6c;
-      border: none;
-      color: #fff;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s ease;
-    }
+        /* CSS-Only Device Mockup (To mimic the image without external assets) */
+        .mockup-container {
+            width: 320px;
+            height: 400px; /* Half tablet view */
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px 20px 0 0; /* Rounded top like a phone/tablet */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) rotateZ(2deg);
+            margin-top: 20px;
+            margin-left: 40px; /* Offset slightly */
+            padding: 15px;
+            border: 4px solid #fff;
+            overflow: hidden;
+        }
+        
+        /* Mockup UI Elements (Fake Interface) */
+        .mock-header {
+            height: 30px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .mock-dot { width: 8px; height: 8px; background: #ddd; border-radius: 50%; margin-right: 5px; }
+        .mock-row {
+            height: 40px;
+            background: #f4f7fc;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        .mock-row-accent { background: rgba(0, 196, 159, 0.1); border-left: 3px solid var(--brand-accent); }
+        .mock-text { height: 6px; background: #e0e0e0; border-radius: 3px; width: 60%; }
+        .mock-avatar { width: 24px; height: 24px; background: #cbd5e0; border-radius: 50%; margin-right: 10px; }
+        
+        /* Decorative Circles */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            z-index: 1;
+        }
+        .c1 { width: 400px; height: 400px; top: -100px; right: -50px; }
+        .c2 { width: 200px; height: 200px; bottom: 50px; left: 50px; }
 
-    button:hover {
-      background: #15224d;
-    }
-
-    .remember-me {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      margin: 10px 0 15px;
-      font-size: 14px;
-      color: #444;
-    }
-
-    .remember-me input {
-      width: auto;
-      margin-right: 8px;
-    }
-
-    .extra-links {
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .extra-links a {
-      color: #1c2f6c;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .extra-links a:hover {
-      text-decoration: underline;
-    }
-
-    .alert-messages {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #f5c6cb;
-      font-size: 14px;
-      text-align: left;
-    }
-  </style>
+        /* Responsive */
+        @media (max-width: 900px) {
+            .right-panel { display: none; } /* Hide visual on tablet/mobile */
+            .left-panel { width: 100%; padding: 30px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="main-wrapper">
-        <header>
-            <h1>🏥 Healthcare Patient Information System</h1>
-            <nav>
-                <a href="{% url 'landing_page' %}">Book Appointment</a>
-                <a href="{% url 'user_login' %}">Staff Login</a>
-            </nav>
-        </header>
 
-        <div class="login-page-content">
-            <div class="login-container" id="alert-box">
-                <h2>Welcome to the HPIS Login Portal</h2>
-                {% if messages %}
-                  <div class="alert-messages">
-                    {% for message in messages %}
-                    <p>{{ message }}</p>
-                    {% endfor %}
-                  </div>
+    <div class="split-container">
+        <div class="left-panel">
+            
+            <div class="brand-logo">
+                <i class="fas fa-hospital-user"></i> <span>HPIS</span>
+            </div>
+
+            <div class="login-header">
+                <h1>Log in to your account</h1>
+                <p>Please enter your credentials to access patient data.</p>
+            </div>
+
+            <form method="post" action="{% url 'user_login' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <ul class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <li><i class="fas fa-circle-exclamation"></i> {{ error }}</li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
 
-                <form method="POST" action="">
-                  {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Username / Staff ID</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope field-icon"></i>
+                        <input type="text" name="username" id="id_username" 
+                               class="form-control"
+                               placeholder="Enter your ID or email" 
+                               required 
+                               value="{{ form.username.value|default:'' }}">
+                    </div>
+                    {% for error in form.username.errors %}
+                        <ul class="errorlist"><li>{{ error }}</li></ul>
+                    {% endfor %}
+                </div>
 
-                  <label for="id_username">Username or Email</label>
-                  <input type="text" id="id_username" name="username" required>
+                <div class="form-group">
+                    <label class="form-label" for="id_password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock field-icon"></i>
+                        <input type="password" name="password" id="id_password" 
+                               class="form-control"
+                               placeholder="••••••••" 
+                               required>
+                    </div>
+                    {% for error in form.password.errors %}
+                        <ul class="errorlist"><li>{{ error }}</li></ul>
+                    {% endfor %}
+                </div>
 
-                  <label for="id_password">Password</label>
-                  <input type="password" id="id_password" name="password" required>
+                <div class="actions-row">
+                    <a href="#" class="forgot-pass">Forgot password?</a>
+                </div>
 
-                  <div class="remember-me">
-                    <input type="checkbox" name="remember_me" id="remember_me">
-                    <label for="remember_me">Remember Me</label>
-                  </div>
+                <button type="submit" class="btn btn-primary">
+                    Log In
+                </button>
+            </form>
 
-                  <button type="submit">Login</button>
-                </form>
+            <div class="login-footer">
+                © 2025 Healthcare Patient Information System. All rights reserved.
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="deco-circle c1"></div>
+            <div class="deco-circle c2"></div>
+            
+            <div class="hero-content">
+                <h2>Empowering healthier communities</h2>
+                <p>Secure, efficient, and reliable patient management for modern healthcare professionals.</p>
+            </div>
+
+            <div class="mockup-container">
+                <div class="mock-header">
+                    <div class="mock-dot"></div><div class="mock-dot"></div>
+                </div>
+                <div class="mock-row mock-row-accent">
+                    <div class="mock-avatar"></div>
+                    <div class="mock-text" style="width: 40%"></div>
+                </div>
+                <div class="mock-row">
+                    <div class="mock-avatar"></div>
+                    <div class="mock-text"></div>
+                </div>
+                <div class="mock-row">
+                    <div class="mock-avatar"></div>
+                    <div class="mock-text" style="width: 50%"></div>
+                </div>
+                <div class="mock-row">
+                    <div class="mock-avatar"></div>
+                    <div class="mock-text" style="width: 30%"></div>
+                </div>
+                 <div class="mock-row mock-row-accent">
+                    <div class="mock-avatar"></div>
+                    <div class="mock-text" style="width: 60%"></div>
+                </div>
             </div>
         </div>
     </div>
+
 </body>
 </html>

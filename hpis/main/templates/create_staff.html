@@ -30,6 +30,7 @@
 
     header h1 {
       font-size: 24px;
+      font-weight: 600;
     }
 
     header nav {
@@ -42,7 +43,9 @@
       text-decoration: none;
       padding: 8px 16px;
       border-radius: 4px;
-      transition: background 0.3s;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s ease;
     }
 
     header a:hover {
@@ -238,7 +241,8 @@
     <h1>Create Staff Account</h1>
     <nav>
       <a href="{% url 'super_admin_dashboard' %}">Dashboard</a>
-      <a href="{% url 'manage_staff' %}">Manage Staff</a>
+      <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+      <a href="{% url 'settings' %}">Settings</a>
       <a href="{% url 'user_login' %}">Logout</a>
     </nav>
   </header>
