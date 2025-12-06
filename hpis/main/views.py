@@ -107,6 +107,21 @@ def role_required(*allowed_roles):
 
 # ==================== Authentication Views ====================
 
+def help_faq_view(request):
+    """Renders the public-facing Help/FAQ page."""
+    return render(request, 'help_faq.html', {'title': 'Help & FAQ'})
+
+def about_us(request):
+    """Renders the public-facing About Us page."""
+    return render(request, 'about_us.html', {'title': 'About Us'})
+
+
+def contact_us_view(request):
+    """Renders the public-facing Contact Us page."""
+    # Logic for handling the form submission would go here (checking POST request)
+    return render(request, 'contact_us.html', {'title': 'Contact Us'})
+
+
 def landing_page(request):
     """Landing page with appointment booking form for patients"""
     if request.method == "POST":

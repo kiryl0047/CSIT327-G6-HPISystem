@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & FAQ - HPIS</title>
+    <style>
+        /* BASE STYLES */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e6f0 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER STYLES (Keep consistent with Landing Page) */
+        header {
+            background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 { font-size: 24px; font-weight: 600; }
+        header nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+        header nav a:hover { background: rgba(255,255,255,0.2); }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .page-title {
+            color: #1c2f6c;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            text-align: center;
+            color: #6c757d;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #faq-search {
+            width: 100%;
+            max-width: 600px;
+            padding: 14px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: border-color 0.3s;
+        }
+
+        #faq-search:focus {
+            outline: none;
+            border-color: #1c2f6c;
+        }
+
+        /* FAQ SECTIONS */
+        .faq-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .faq-section h3 {
+            color: #1c2f6c;
+            font-size: 24px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* INDIVIDUAL FAQ ITEM */
+        .faq-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            cursor: pointer;
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            margin-top: 10px;
+            padding: 10px 0 0 15px;
+            color: #555;
+            font-size: 15px;
+            line-height: 1.6;
+            display: none; /* Initially hidden */
+        }
+        
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* CONTACT CTA */
+        .contact-cta {
+            text-align: center;
+            padding: 30px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin-top: 40px;
+        }
+
+        .contact-cta p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .contact-cta a {
+            color: white;
+            background: #1c2f6c;
+            padding: 10px 25px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .contact-cta a:hover {
+            background: #15224d;
+        }
+
+        /* FOOTER STYLES */
+        footer {
+            background: #f0f0f0;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+        }
+        footer a { color: #1c2f6c; text-decoration: none; margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏥 HPIS</h1>
+        <nav>
+            <a href="{% url 'landing_page' %}">Home</a>
+            <a href="{% url 'landing_page' %}#services">Services</a>
+            <a href="{% url 'landing_page' %}#book-appointment">Book Appointment</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Help Center & FAQ</h1>
+        <p class="page-subtitle">Find answers to common questions about appointments, services, and policies.</p>
+
+        <div class="search-container">
+            <input type="text" id="faq-search" placeholder="Type keywords to search (e.g., 'cancellation policy', 'insurance')">
+        </div>
+
+        <div class="faq-section">
+            <h3>Appointment Scheduling</h3>
+            <div class="faq-item" onclick="toggleAnswer(this)">
+                <div class="faq-question">
+                    How do I book an appointment? 
+                    </div>
+                <div class="faq-answer">
+                    You can book an appointment by filling out the **Patient Information Form** located at the bottom of our <a href="{% url 'landing_page' %}">Home page</a>. Our administrative staff will review your request and assign a doctor.
+                </div>
+            </div>
+            <div class="faq-item" onclick="toggleAnswer(this)">
+                <div class="faq-question">
+                    What happens after I submit the request?
+                </div>
+                <div class="faq-answer">
+                    After submission, you will receive an email confirmation that your request has been logged. Our team processes requests within 24 hours and will email you the confirmed date, time, and attending physician details.
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h3>Health Records & Privacy</h3>
+            <div class="faq-item" onclick="toggleAnswer(this)">
+                <div class="faq-question">
+                    Is my patient information kept private?
+                </div>
+                <div class="faq-answer">
+                    Yes. We adhere strictly to national health privacy standards. All patient data is encrypted, secured, and only accessible by authorized healthcare staff involved in your care.
+                </div>
+            </div>
+            <div class="faq-item" onclick="toggleAnswer(this)">
+                <div class="faq-question">
+                    How can I get a copy of my records?
+                </div>
+                <div class="faq-answer">
+                    Please contact our administrative office directly via phone or the Contact Us link in the footer. We require photo identification to process any request for medical records.
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-cta">
+            <p>Can't find the answer you need? Contact our support team directly.</p>
+            <a href="{% url 'contact_us' %}">Contact Support</a>
+        </div>
+
+    </div>
+
+    <footer>
+        <p style="margin-bottom: 5px;">&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+        <div>
+            <a href="#">Contact Us</a> |
+            <a href="#">Help / FAQ</a> | 
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+    
+    <script>
+        function toggleAnswer(item) {
+            const answer = item.querySelector('.faq-answer');
+            const isActive = answer.classList.contains('active');
+            
+            // Optional: Close all other open answers
+            document.querySelectorAll('.faq-answer.active').forEach(openAnswer => {
+                openAnswer.classList.remove('active');
+            });
+
+            // Open or close the clicked answer
+            if (!isActive) {
+                answer.classList.add('active');
+            }
+        }
+        
+        // Note: For a real application, you would add an event listener here
+        // to handle the search functionality (filtering the .faq-item elements).
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    {% load static %}
+    <style>
+        /* Base styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e6f0 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER STYLES */
+        header {
+            background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 { font-size: 24px; font-weight: 600; }
+        header nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+        header nav a:hover { background: rgba(255,255,255,0.2); }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        /* ABOUT SECTION STYLES */
+        .about-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .about-header h1 {
+            color: #1c2f6c;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .about-header p {
+            color: #6c757d;
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Mission/Vision Grid */
+        .mission-vision-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .vision-card, .mission-card {
+            padding: 25px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #28a745;
+        }
+        
+        .vision-card {
+             border-left-color: #1c2f6c; /* Use primary color for Vision */
+        }
+
+        .mission-vision-grid h3 {
+            color: #1c2f6c;
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        /* Core Values Section */
+        .values-header {
+            text-align: center;
+            color: #1c2f6c;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .value-item {
+            padding: 20px;
+            border-radius: 8px;
+            background: #e9ecef;
+        }
+
+        .value-item i {
+            font-size: 30px;
+            color: #1c2f6c;
+            margin-bottom: 10px;
+        }
+
+        .value-item h4 {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .team-header {
+            text-align: center;
+            color: #1c2f6c;
+            font-size: 28px;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .team-member {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .team-member img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #1c2f6c; /* Frame picture with primary color */
+        }
+
+        .team-member h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .team-member p {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        
+        /* FOOTER STYLES */
+        footer {
+            background: #f0f0f0;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+        }
+        footer a { color: #1c2f6c; text-decoration: none; margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .mission-vision-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏥 HPIS</h1>
+        <nav>
+            <a href="{% url 'landing_page' %}">Home</a>
+            <a href="{% url 'contact_us' %}">Contact Us</a>
+            <a href="{% url 'help_faq' %}">Help / FAQ</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="about-section">
+            <div class="about-header">
+                <h1>About the Healthcare Patient Information System</h1>
+                <p>HPIS is dedicated to streamlining patient care, optimizing hospital resources, and ensuring data accuracy and privacy.</p>
+            </div>
+
+            <div class="mission-vision-grid">
+                <div class="mission-card">
+                    <h3>Our Mission</h3>
+                    <p>To empower healthcare providers with real-time, accurate, and accessible patient data, reducing administrative overhead and allowing clinicians to focus entirely on patient health outcomes.</p>
+                </div>
+                <div class="vision-card">
+                    <h3>Our Vision</h3>
+                    <p>To be the leading, most trusted patient information system in the region, recognized for its reliability, security, and contribution to enhancing the quality and speed of medical care delivery.</p>
+                </div>
+            </div>
+            
+            <h3 class="values-header">Core Values</h3>
+            <div class="values-grid">
+                <div class="value-item">
+                    <h4>Security</h4>
+                    <p style="font-size: 13px;">Protecting patient data with the highest standards of encryption and compliance.</p>
+                </div>
+                <div class="value-item">
+                    <h4>Integrity</h4>
+                    <p style="font-size: 13px;">Maintaining transparent and ethical practices in data management and system operations.</p>
+                </div>
+                <div class="value-item">
+                    <h4>Efficiency</h4>
+                    <p style="font-size: 13px;">Designing workflows that maximize speed and minimize administrative effort for staff.</p>
+                </div>
+                <div class="value-item">
+                    <h4>Patient-Centric</h4>
+                    <p style="font-size: 13px;">Ensuring all system functions ultimately benefit patient safety and quality of care.</p>
+                </div>
+            </div>
+
+            <h3 class="team-header">Meet the Team</h3>
+            <div class="team-grid">
+                
+                <div class="team-member">
+                    <img src="{% static 'main/images/placeholder_kursten.jpg' %}" alt="Kursten Dane M. Casas">
+                    <h4>Andre Josef A. Codilla</h4>
+                    <p>Product Owner</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Rusty Summer Daclan">
+                    <h4>Rusty Summer Daclan</h4>
+                    <p>Business Analyst</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Richimir B. Erojo">
+                    <h4>Richimir B. Erojo</h4>
+                    <p>Business Analyst</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Ashlee Skye A. Durano">
+                    <h4>Ashlee Skye A. Durano</h4>
+                    <p>Scrum Master</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Andrei Mesiah M. Canoy">
+                    <h4>Andrei Mesiah M. Canoy</h4>
+                    <p>Software Developer</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Keith Charven S. Canada">
+                    <h4>Keith Charven S. Canada</h4>
+                    <p>Software Developer</p>
+                </div>
+                
+                <div class="team-member">
+                    <img src="{% static 'images/placeholder_kursten.jpg' %}" alt="Kursten Dane M. Casas">
+                    <h4>Kursten Dane M. Casas</h4>
+                    <p>Software Developer</p>
+                </div>
+
+            </div>
+            </div> 
+        </div>
+    </div>
+
+    <footer>
+        <p style="margin-bottom: 5px;">&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
+        <div>
+            <a href="{% url 'contact_us' %}">Contact Us</a> |
+            <a href="{% url 'help_faq' %}">Help / FAQ</a> | 
+            <a href="#">Privacy Policy</a> |
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+    
+</body>
+</html>

@@ -5,9 +5,12 @@ from . import views
 urlpatterns = [
     # Authentication
     path("", views.landing_page, name="landing_page"),
+    path("about-us/", views.about_us, name="about_us"),
     path("login/", views.user_login, name="user_login"),
     path("logout/", LogoutView.as_view(next_page="landing_page"), name="logout"),
     path("homepage/", views.homepage, name="homepage"),
+    path('support/', views.help_faq_view, name='help_faq'),
+    path('contact/', views.contact_us_view, name='contact_us'),
 
     # Super Admin URLs
     path("admin/dashboard/", views.super_admin_dashboard, name="super_admin_dashboard"),
