@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+        header { background: #1c2f6c; color: white; padding: 15px 30px; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .info-item { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .info-item label { font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 3px; }
+        .info-item value { color: #333; font-size: 14px; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 10px; font-size: 14px; }
+        .btn-primary { background: #1c2f6c; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-danger { background: #dc3545; color: white; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 13px; }
+        th { background: #f8f9fa; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ title }}</h1>
+    </header>
+    
+    <div class="container">
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'inventory_meds:dashboard' %}" class="btn btn-secondary">← Back to Inventory</a>
+            {% if can_edit %}
+            <a href="{% url 'inventory_meds:edit_medicine' medicine.id %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+            {% if can_adjust_stock %}
+            <a href="{% url 'inventory_meds:adjust_stock' medicine.id %}" class="btn btn-warning">Adjust Stock</a>
+            {% endif %}
+            {% if can_dispense and medicine.quantity_on_hand > 0 %}
+            <a href="{% url 'inventory_meds:dispense_medicine_specific' medicine.id %}" class="btn btn-primary">Dispense</a>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2>Medicine Details</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Code</label>
+                    <value>{{ medicine.code }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Status</label>
+                    <value>
+                        {% if medicine.status == "Active" %}
+                        <span class="badge badge-success">{{ medicine.status }}</span>
+                        {% elif medicine.status == "Out of Stock" %}
+                        <span class="badge badge-danger">{{ medicine.status }}</span>
+                        {% else %}
+                        <span class="badge badge-warning">{{ medicine.status }}</span>
+                        {% endif %}
+                    </value>
+                </div>
+                <div class="info-item">
+                    <label>Generic Name</label>
+                    <value>{{ medicine.name }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Brand Name</label>
+                    <value>{{ medicine.brand_name|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Category</label>
+                    <value>{{ medicine.category|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Form</label>
+                    <value>{{ medicine.dosage_form|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Strength</label>
+                    <value>{{ medicine.strength|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Manufacturer</label>
+                    <value>{{ medicine.manufacturer|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Batch Number</label>
+                    <value>{{ medicine.batch_number|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Lot Number</label>
+                    <value>{{ medicine.lot_number|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Quantity on Hand</label>
+                    <value>{{ medicine.quantity_on_hand }} {{ medicine.unit }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Reorder Level</label>
+                    <value>{{ medicine.reorder_level }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Date Received</label>
+                    <value>{{ medicine.date_received|default:"—" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Expiration Date</label>
+                    <value>
+                        {{ medicine.expires_on|default:"—" }}
+                        {% if medicine.is_expiring_soon %}
+                        <span class="badge badge-warning">Expiring Soon</span>
+                        {% elif medicine.is_expired %}
+                        <span class="badge badge-danger">Expired</span>
+                        {% endif %}
+                    </value>
+                </div>
+                <div class="info-item">
+                    <label>Prescription Only</label>
+                    <value>{{ medicine.prescription_only|yesno:"Yes,No" }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Supplier</label>
+                    <value>{{ medicine.supplier.name|default:"—" }}</value>
+                </div>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <label>Description</label>
+                <value>{{ medicine.description|default:"—" }}</value>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <label>Storage Instructions</label>
+                <value>{{ medicine.storage_instructions|default:"—" }}</value>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <label>Notes</label>
+                <value>{{ medicine.notes|default:"—" }}</value>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Recent Stock Movements</h3>
+            {% if recent_movements %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date/Time</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                        <th>Performed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in recent_movements %}
+                    <tr>
+                        <td>{{ movement.performed_at }}</td>
+                        <td>{{ movement.get_movement_type_display }}</td>
+                        <td>{{ movement.quantity }}</td>
+                        <td>{{ movement.reason|default:"—" }}</td>
+                        <td>{{ movement.performed_by|default:"System" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No stock movements recorded.</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h3>Recent Dispenses</h3>
+            {% if recent_dispenses %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date/Time</th>
+                        <th>Patient</th>
+                        <th>Quantity</th>
+                        <th>Dispensed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dispense in recent_dispenses %}
+                    <tr>
+                        <td>{{ dispense.dispensed_at }}</td>
+                        <td>{{ dispense.patient.full_name }}</td>
+                        <td>{{ dispense.quantity }}</td>
+                        <td>{{ dispense.dispensed_by|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No dispenses recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

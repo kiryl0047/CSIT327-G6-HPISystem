@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Medicine - Confirmation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .warning-icon { text-align: center; font-size: 64px; margin-bottom: 20px; color: #dc3545; }
+        h1 { color: #dc3545; text-align: center; margin-bottom: 10px; font-size: 24px; }
+        .medicine-info { background: #f8f9fa; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #dc3545; }
+        .medicine-info h3 { color: #333; margin-bottom: 10px; }
+        .medicine-info p { margin: 5px 0; color: #666; }
+        .warning-text { color: #721c24; background: #f8d7da; padding: 15px; border-radius: 6px; margin: 20px 0; font-size: 14px; }
+        .actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+        .btn { padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; font-weight: 600; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="warning-icon">⚠️</div>
+            <h1>Delete Medicine Confirmation</h1>
+            
+            <div class="medicine-info">
+                <h3>{{ medicine.name }}</h3>
+                <p><strong>Code:</strong> {{ medicine.code }}</p>
+                <p><strong>Category:</strong> {{ medicine.category|default:"—" }}</p>
+                <p><strong>Form:</strong> {{ medicine.dosage_form|default:"—" }}</p>
+                <p><strong>Strength:</strong> {{ medicine.strength|default:"—" }}</p>
+                <p><strong>Batch Number:</strong> {{ medicine.batch_number|default:"—" }}</p>
+                <p><strong>Current Stock:</strong> {{ medicine.quantity_on_hand }} {{ medicine.unit }}</p>
+            </div>
+            
+            <div class="warning-text">
+                <strong>⚠️ Warning:</strong> This will archive the medicine and mark it as "Discontinued". 
+                The medicine will no longer be available for dispensing, but the record will be preserved for audit purposes. 
+                This action will be logged in the audit trail.
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="actions">
+                    <button type="submit" class="btn btn-danger">🗑️ Yes, Delete Medicine</button>
+                    <a href="{% url 'inventory_meds:dashboard' %}" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

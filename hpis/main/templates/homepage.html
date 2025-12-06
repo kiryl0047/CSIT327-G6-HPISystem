@@ -25,13 +25,22 @@
       padding: 15px 30px;
     }
     header h1 { margin: 0; font-size: 20px; }
+    header nav { display: flex; gap: 15px; }
     nav a {
       color: white;
-      margin-left: 20px;
       text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
       font-weight: 500;
+      transition: background 0.3s ease;
     }
-    nav a:hover { text-decoration: underline; }
+    nav a:hover { background: rgba(255,255,255,0.2); }
+    nav a.active {
+      background: rgba(255,255,255,0.25);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
 
     /* Welcome */
     .welcome {
@@ -176,11 +185,13 @@
 
   <!-- Header -->
   <header>
-    <h1>Patient Home Page</h1>
+    <h1>🏥 Patient Home Page</h1>
     <nav>
-      <a href="#">{{ username }}</a>
-      <a href="#">Notifications</a>
+      <a href="{% url 'dashboard_url' %}">Dashboard</a>
+      <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+      <a href="{% url 'inventory_meds:dashboard' %}">💊 Medicine Inventory</a>
       <a href="{% url 'settings' %}">Settings</a>
+      <a href="{% url 'profile' %}">Profile</a>
     </nav>
   </header>
 

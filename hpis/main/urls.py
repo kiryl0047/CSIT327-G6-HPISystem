@@ -25,7 +25,8 @@ urlpatterns = [
     path("doctor/dashboard/", views.doctor_dashboard, name="doctor_dashboard"),
     path("doctor/confirm-appointment/<int:appointment_id>/", views.confirm_appointment, name="confirm_appointment"),
 
-    # Settings URLs
+    # Profile & Settings URLs
+    path("profile/", views.profile, name="profile"),
     path("settings/", views.settings, name="settings"),
     path("settings/update-profile", views.update_profile, name="update_profile"),
     path("settings/change-password/", views.change_password, name="change_password"),

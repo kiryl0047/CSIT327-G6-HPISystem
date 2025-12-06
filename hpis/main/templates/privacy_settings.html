@@ -22,28 +22,37 @@
     }
 
     header {
-      background: #1c2f6c;
+      background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
       color: white;
-      padding: 15px 30px;
+      padding: 20px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     header h1 {
-      font-size: 20px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    header nav {
+      display: flex;
+      gap: 15px;
     }
 
     header nav a {
       color: white;
-      margin-left: 20px;
       text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
       font-weight: 500;
+      transition: background 0.3s ease;
     }
 
     header nav a:hover {
-      text-decoration: underline;
+      background: rgba(255,255,255,0.1);
     }
 
 
@@ -283,10 +292,10 @@
   <header>
     <h1>HPIS</h1>
     <nav>
-   
-      <a href="homepage.html">Home</a>
-      <a href="settings.html">Account</a>
-      <a href="#">Logout</a>
+      <a href="{% url 'dashboard_url' %}">Dashboard</a>
+      <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+      <a href="{% url 'settings' %}">Settings</a>
+      <a href="{% url 'user_login' %}">Logout</a>
     </nav>
   </header>
 

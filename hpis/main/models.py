@@ -13,8 +13,8 @@ class UserProfile(models.Model):
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='doctor')
-    department = models.CharField(max_length=100, blank=True, null=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='doctor', db_index=True)
+    department = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     license_number = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -26,6 +26,9 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
+        indexes = [
+            models.Index(fields=['role', 'department']),
+        ]
 
 
 class PatientAppointment(models.Model):
@@ -57,18 +60,18 @@ class PatientAppointment(models.Model):
     address = models.TextField()
 
     # Appointment Details
-    appointment_type = models.CharField(max_length=20, choices=APPOINTMENT_TYPE_CHOICES)
-    appointment_date = models.DateField()
+    appointment_type = models.CharField(max_length=20, choices=APPOINTMENT_TYPE_CHOICES, db_index=True)
+    appointment_date = models.DateField(db_index=True)
     appointment_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     # Status & Assignment
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    assigned_doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_appointments')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    assigned_doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_appointments', db_index=True)
     assigned_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_appointments')
 
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -78,6 +81,11 @@ class PatientAppointment(models.Model):
         verbose_name = "Patient Appointment"
         verbose_name_plural = "Patient Appointments"
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'appointment_date']),
+            models.Index(fields=['assigned_doctor', 'status']),
+            models.Index(fields=['-created_at']),
+        ]
 
 
 class NotificationPreference(models.Model):
@@ -111,12 +119,12 @@ class AccessLog(models.Model):
         ('data_download', 'Data Download'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_logs')
-    access_type = models.CharField(max_length=20, choices=ACCESS_TYPE_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_logs', db_index=True)
+    access_type = models.CharField(max_length=20, choices=ACCESS_TYPE_CHOICES, db_index=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_access_type_display()} at {self.timestamp}"
@@ -125,6 +133,10 @@ class AccessLog(models.Model):
         verbose_name = "Access Log"
         verbose_name_plural = "Access Logs"
         ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', '-timestamp']),
+            models.Index(fields=['access_type', '-timestamp']),
+        ]
 
 
 class DataExportRequest(models.Model):

@@ -30,6 +30,7 @@
 
     header h1 {
       font-size: 24px;
+      font-weight: 600;
     }
 
     header nav {
@@ -42,11 +43,19 @@
       text-decoration: none;
       padding: 8px 16px;
       border-radius: 4px;
-      transition: background 0.3s;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s ease;
     }
 
     header a:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.2);
+    }
+    
+    header a.active {
+      background: rgba(255,255,255,0.25);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     /* Main Container */
@@ -255,13 +264,13 @@
   <!-- Header -->
   <header>
     <h1>👑 Super Admin Dashboard</h1>
-    <nav>
-        <a href="{% url 'super_admin_dashboard' %}">Dashboard</a>
+      <nav>
+        <a href="{% url 'super_admin_dashboard' %}" class="active">Dashboard</a>
         <a href="{% url 'analytics_dashboard' %}">Analytics</a>
-        <a href="{% url 'manage_staff' %}">Manage Staff</a>
+        <a href="{% url 'inventory_meds:dashboard' %}">💊 Medicine Inventory</a>
         <a href="{% url 'settings' %}">Settings</a>
-        <a href="{% url 'user_login' %}">Logout</a>
-    </nav>
+        <a href="{% url 'profile' %}">Profile</a>
+      </nav>
   </header>
 
   <!-- Main Container -->

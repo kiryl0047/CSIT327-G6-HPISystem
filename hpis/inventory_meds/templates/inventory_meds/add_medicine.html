@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+        header { background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%); color: white; padding: 20px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        header h1 { font-size: 24px; font-weight: 600; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .info-banner { background: #e7f3ff; border-left: 4px solid #1c2f6c; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+        .info-banner h3 { color: #1c2f6c; margin-bottom: 8px; font-size: 16px; }
+        .info-banner p { color: #555; font-size: 14px; }
+        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .section-title { color: #1c2f6c; font-size: 18px; margin: 30px 0 20px 0; padding-bottom: 10px; border-bottom: 2px solid #e9ecef; }
+        .section-title:first-child { margin-top: 0; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; font-size: 14px; }
+        .form-group label .required { color: #dc3545; font-weight: bold; }
+        .form-group label .help-text { font-weight: 400; color: #6c757d; font-size: 12px; display: block; margin-top: 3px; }
+        .form-control { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: #1c2f6c; }
+        .form-control:invalid { border-color: #dc3545; }
+        select.form-control { cursor: pointer; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        .btn { padding: 14px 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; text-decoration: none; display: inline-block; margin-right: 10px; transition: all 0.3s; }
+        .btn-primary { background: #1c2f6c; color: white; }
+        .btn-primary:hover { background: #15224d; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(28, 47, 108, 0.3); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .alert { padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid; }
+        .alert-error { background: #f8d7da; color: #721c24; border-color: #dc3545; }
+        .alert-success { background: #d4edda; color: #155724; border-color: #28a745; }
+        .actions { margin-top: 40px; padding-top: 30px; border-top: 2px solid #e9ecef; display: flex; gap: 15px; }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; }
+        .checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>➕ {{ title }}</h1>
+    </header>
+    
+    <div class="container">
+        <div class="info-banner">
+            <h3>📋 Add New Medicine to Inventory</h3>
+            <p>Fill out all required fields marked with <span style="color: #dc3545;">*</span> to add a new medicine to the inventory system. All entries will be logged for audit purposes.</p>
+        </div>
+        
+        <div class="card">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <h2 class="section-title">📝 Basic Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Medicine Code <span class="required">*</span>
+                            <span class="help-text">Unique identifier (e.g., MED001)</span>
+                        </label>
+                        {{ form.code }}
+                    </div>
+                    <div class="form-group">
+                        <label>Generic Name <span class="required">*</span>
+                            <span class="help-text">Official generic name</span>
+                        </label>
+                        {{ form.name }}
+                    </div>
+                    <div class="form-group">
+                        <label>Brand Name
+                            <span class="help-text">Commercial/trade name</span>
+                        </label>
+                        {{ form.brand_name }}
+                    </div>
+                    <div class="form-group">
+                        <label>Category <span class="required">*</span>
+                            <span class="help-text">Medicine classification</span>
+                        </label>
+                        {{ form.category }}
+                    </div>
+                </div>
+                
+                <h2 class="section-title">💊 Formulation Details</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Dosage Form <span class="required">*</span>
+                            <span class="help-text">e.g., Tablet, Syrup, Injection</span>
+                        </label>
+                        {{ form.dosage_form }}
+                    </div>
+                    <div class="form-group">
+                        <label>Strength <span class="required">*</span>
+                            <span class="help-text">e.g., 500mg, 5mg/mL</span>
+                        </label>
+                        {{ form.strength }}
+                    </div>
+                    <div class="form-group">
+                        <label>Unit
+                            <span class="help-text">e.g., tablet, bottle, vial</span>
+                        </label>
+                        {{ form.unit }}
+                    </div>
+                    <div class="form-group">
+                        <label>Manufacturer
+                            <span class="help-text">Name of manufacturer</span>
+                        </label>
+                        {{ form.manufacturer }}
+                    </div>
+                </div>
+                
+                <h2 class="section-title">🏷️ Batch & Tracking</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Batch Number <span class="required">*</span>
+                            <span class="help-text">Production batch identifier</span>
+                        </label>
+                        {{ form.batch_number }}
+                    </div>
+                    <div class="form-group">
+                        <label>Lot Number
+                            <span class="help-text">Additional lot tracking number</span>
+                        </label>
+                        {{ form.lot_number }}
+                    </div>
+                    <div class="form-group">
+                        <label>Date Received
+                            <span class="help-text">When medicine was received</span>
+                        </label>
+                        {{ form.date_received }}
+                    </div>
+                    <div class="form-group">
+                        <label>Expiration Date <span class="required">*</span>
+                            <span class="help-text">Must be a future date</span>
+                        </label>
+                        {{ form.expires_on }}
+                    </div>
+                </div>
+                
+                <h2 class="section-title">📦 Inventory & Stock</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Quantity on Hand <span class="required">*</span>
+                            <span class="help-text">Current stock quantity</span>
+                        </label>
+                        {{ form.quantity_on_hand }}
+                    </div>
+                    <div class="form-group">
+                        <label>Reorder Level
+                            <span class="help-text">Alert when stock falls below this</span>
+                        </label>
+                        {{ form.reorder_level }}
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier
+                            <span class="help-text">Select supplier</span>
+                        </label>
+                        {{ form.supplier }}
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-wrapper">
+                            {{ form.prescription_only }}
+                            Prescription Only
+                            <span class="help-text" style="display: block; margin-left: 30px;">Check if requires prescription</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">📄 Additional Information</h2>
+                <div class="form-group full-width">
+                    <label>Description
+                        <span class="help-text">Detailed description of the medicine</span>
+                    </label>
+                    {{ form.description }}
+                </div>
+                <div class="form-group full-width">
+                    <label>Storage Instructions
+                        <span class="help-text">e.g., Store at room temperature, Keep refrigerated</span>
+                    </label>
+                    {{ form.storage_instructions }}
+                </div>
+                <div class="form-group full-width">
+                    <label>Notes
+                        <span class="help-text">Any additional notes or comments</span>
+                    </label>
+                    {{ form.notes }}
+                </div>
+                
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">💾 Save Medicine</button>
+                    <a href="{% url 'inventory_meds:dashboard' %}" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
