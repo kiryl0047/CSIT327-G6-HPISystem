@@ -263,11 +263,9 @@
 
   <!-- Header -->
   <header>
-    <h1>👑 Super Admin Dashboard</h1>
+    <h1>Super Admin Dashboard</h1>
       <nav>
         <a href="{% url 'super_admin_dashboard' %}" class="active">Dashboard</a>
-        <a href="{% url 'analytics_dashboard' %}">Analytics</a>
-        <a href="{% url 'inventory_meds:dashboard' %}">💊 Medicine Inventory</a>
         <a href="{% url 'settings' %}">Settings</a>
         <a href="{% url 'profile' %}">Profile</a>
       </nav>
@@ -295,12 +293,6 @@
         <h3>Doctor Accounts</h3>
         <div class="number">{{ stats.doctors }}</div>
         <div class="label">Active Doctors</div>
-      </div>
-
-      <div class="stat-card">
-        <h3>Pending Appointments</h3>
-        <div class="number">{{ stats.pending_appointments }}</div>
-        <div class="label">Awaiting Assignment</div>
       </div>
     </div>
 

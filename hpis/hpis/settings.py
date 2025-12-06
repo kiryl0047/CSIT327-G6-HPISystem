@@ -9,12 +9,11 @@ load_dotenv()
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = True  # Set to True for development
 
 ALLOWED_HOSTS = ["healthcarepatientinformationsystem.onrender.com", "localhost", "127.0.0.1"]  # Update this in production
 
@@ -28,13 +27,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',  # Your app
     'records',
+    'inventory',
+    'inventory_meds',
     'widget_tweaks',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',  # Cache middleware (must be first)
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',  # Cache middleware (must be last)
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -106,6 +109,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # Media files
 MEDIA_URL = '/media/'
@@ -140,3 +146,26 @@ LOGIN_URL = 'user_login'
 
 # This tells Django where to redirect after a successful login (optional, but clean).
 LOGIN_REDIRECT_URL = 'homepage'
+
+# ================================================
+# Cache Configuration
+# ================================================
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'hpis-cache',
+        'TIMEOUT': 300,  # 5 minutes default timeout
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
+# Cache time for pages
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 60  # Cache pages for 60 seconds
+CACHE_MIDDLEWARE_KEY_PREFIX = 'hpis'
+
+# Session optimization
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
