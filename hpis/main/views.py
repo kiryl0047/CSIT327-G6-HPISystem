@@ -469,18 +469,30 @@ def reactivate_staff(request, staff_id):
 @role_required('admin')
 def admin_dashboard(request):
     """Admin main dashboard"""
-    # Optimize queries with select_related to avoid N+1 queries
-    pending_appointments = PatientAppointment.objects.filter(status='pending').select_related(
-        'assigned_doctor', 'assigned_admin'
-    )[:20]  # Limit to recent 20
-    
-    assigned_appointments = PatientAppointment.objects.filter(status='assigned').select_related(
-        'assigned_doctor', 'assigned_admin'
-    )[:20]  # Limit to recent 20
-    
-    doctors = User.objects.filter(profile__role='doctor').select_related('profile')
 
-    # Use only() to fetch only needed fields for counts
+    # Fetch fresh data + reduce DB hits
+    pending_appointments = (
+        PatientAppointment.objects
+        .filter(status='pending')
+        .select_related('assigned_doctor', 'assigned_admin')
+        .order_by('-id')
+    )
+
+    assigned_appointments = (
+        PatientAppointment.objects
+        .filter(status='assigned')
+        .select_related('assigned_doctor', 'assigned_admin')
+        .order_by('-id')
+    )
+
+    # Prefetch doctor profiles
+    doctors = (
+        User.objects
+        .filter(profile__role='doctor')
+        .select_related('profile')
+    )
+
+    # Fast, index-friendly counts
     pending_count = PatientAppointment.objects.filter(status='pending').count()
     assigned_count = PatientAppointment.objects.filter(status='assigned').count()
 
@@ -489,12 +501,14 @@ def admin_dashboard(request):
     context = {
         'pending_count': pending_count,
         'assigned_count': assigned_count,
-        'pending_appointments': pending_appointments,
-        'assigned_appointments': assigned_appointments,
+        'pending_appointments': list(pending_appointments),  # FORCE EVALUATION HERE
+        'assigned_appointments': list(assigned_appointments),  # FORCE EVALUATION HERE
         'doctors': doctors,
     }
 
     return render(request, 'admin_dashboard.html', context)
+
+
 
 
 @login_required
@@ -531,9 +545,7 @@ def assign_appointment(request, appointment_id):
         except User.DoesNotExist:
             messages.error(request, 'Doctor not found.')
 
-    doctors = User.objects.filter(profile__role='doctor').select_related('profile').only(
-        'id', 'first_name', 'last_name', 'email'
-    )
+    doctors = User.objects.filter(profile__role='doctor').select_related('profile')
     return render(request, 'assign_appointment.html', {'appointment': appointment, 'doctors': doctors})
 
 
@@ -543,15 +555,20 @@ def assign_appointment(request, appointment_id):
 @role_required('doctor')
 def doctor_dashboard(request):
     """Doctor main dashboard"""
-    # Optimize with select_related and limit results
-    my_appointments = PatientAppointment.objects.filter(
-        assigned_doctor=request.user
-    ).select_related('assigned_admin')[:50]  # Limit to recent 50
 
-    # Use separate counts to avoid loading all data
+    # Fetch the doctor's appointments with optimized joins
+    my_appointments = (
+        PatientAppointment.objects
+        .filter(assigned_doctor=request.user)
+        .select_related('assigned_admin')  # Avoid N+1 queries
+        .order_by('-id')
+    )
+
+    # Count queries remain lightweight and efficient
     confirmed_count = PatientAppointment.objects.filter(
         assigned_doctor=request.user, status='confirmed'
     ).count()
+
     pending_count = PatientAppointment.objects.filter(
         assigned_doctor=request.user, status='assigned'
     ).count()
@@ -559,12 +576,14 @@ def doctor_dashboard(request):
     log_access(request.user, 'data_view', 'Accessed doctor dashboard', request)
 
     context = {
-        'appointments': my_appointments,
+        'appointments': list(my_appointments),  # FORCE QUERY EVALUATION
         'confirmed_count': confirmed_count,
         'pending_count': pending_count,
     }
 
     return render(request, 'doctor_dashboard.html', context)
+
+
 
 
 @login_required
@@ -628,6 +647,20 @@ def profile(request):
     }
 
     return render(request, 'profile.html', context)
+
+@login_required
+def super_admin_profile(request):
+    """User profile page"""
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+
+    context = {
+        'user_profile': user_profile,
+    }
+
+    return render(request, 'super_admin_profile.html', context)
 
 
 @login_required
@@ -1050,25 +1083,57 @@ def analytics_dashboard(request):
     """Analytics dashboard with KPIs and visualizations"""
     from django.db.models import Count, Q
     from datetime import datetime, timedelta
+    import json
 
     # Calculate date ranges
     today = timezone.now().date()
+    last_month = today - timedelta(days=30)
 
-    # Optimize: Use aggregation instead of multiple count() calls
-    appointment_stats = PatientAppointment.objects.aggregate(
+    # Get filter parameters
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    department = request.GET.get('department')
+
+    # Build base queryset
+    appointments = PatientAppointment.objects.all()
+
+    # Apply filters if provided
+    if date_from:
+        appointments = appointments.filter(appointment_date__gte=date_from)
+    if date_to:
+        appointments = appointments.filter(appointment_date__lte=date_to)
+    if department:
+        appointments = appointments.filter(assigned_doctor__profile__department=department)
+
+    # KPI Calculations
+    appointment_stats = appointments.aggregate(
         total=Count('id'),
         pending=Count('id', filter=Q(status='pending')),
         confirmed=Count('id', filter=Q(status='confirmed')),
         completed=Count('id', filter=Q(status='completed')),
+        assigned=Count('id', filter=Q(status='assigned')),
     )
 
-    # KPIs
     total_appointments = appointment_stats['total']
     pending_appointments = appointment_stats['pending']
     confirmed_appointments = appointment_stats['confirmed']
     completed_appointments = appointment_stats['completed']
 
-    # Monthly trend data - optimized with values and annotate
+    # Calculate patient satisfaction (based on completed appointments ratio)
+    satisfaction_rate = round((completed_appointments / total_appointments * 100), 1) if total_appointments > 0 else 0
+
+    # Calculate average wait time (simplified - days between creation and confirmation)
+    confirmed_appts = appointments.filter(status='confirmed')
+    if confirmed_appts.exists():
+        total_wait = sum([(appt.updated_at - appt.created_at).days for appt in confirmed_appts])
+        avg_wait_time = round(total_wait / confirmed_appts.count(), 1)
+    else:
+        avg_wait_time = 0
+
+    # Count active patients (unique patients with appointments)
+    active_patients = appointments.values('email').distinct().count()
+
+    # Monthly trend data (last 12 months)
     monthly_data = []
     for i in range(11, -1, -1):
         month_date = today - timedelta(days=30 * i)
@@ -1090,16 +1155,24 @@ def analytics_dashboard(request):
         })
 
     # Appointment types distribution
-    type_data = PatientAppointment.objects.values('appointment_type').annotate(
+    type_data = list(appointments.values('appointment_type').annotate(
         count=Count('id')
-    )
+    ))
+
+    # Format type data for Chart.js
+    type_labels = [dict(PatientAppointment.APPOINTMENT_TYPE_CHOICES).get(item['appointment_type'], item['appointment_type']) for item in type_data]
+    type_counts = [item['count'] for item in type_data]
 
     # Status distribution
-    status_data = PatientAppointment.objects.values('status').annotate(
+    status_data = list(appointments.values('status').annotate(
         count=Count('id')
-    )
+    ))
 
-    # Department workload (based on doctor's department)
+    # Format status data for Chart.js
+    status_labels = [dict(PatientAppointment.STATUS_CHOICES).get(item['status'], item['status']) for item in status_data]
+    status_counts = [item['count'] for item in status_data]
+
+    # Department workload (top 5 departments)
     department_data = User.objects.filter(
         profile__role='doctor'
     ).values(
@@ -1108,15 +1181,53 @@ def analytics_dashboard(request):
         count=Count('assigned_appointments')
     ).order_by('-count')[:5]
 
+    # Format department data
+    dept_labels = [item['profile__department'] or 'Unassigned' for item in department_data]
+    dept_counts = [item['count'] for item in department_data]
+
+    # Calculate percentage changes (compare with last month)
+    last_month_total = PatientAppointment.objects.filter(
+        appointment_date__gte=last_month,
+        appointment_date__lt=today - timedelta(days=30)
+    ).count()
+
+    total_change = ((total_appointments - last_month_total) / last_month_total * 100) if last_month_total > 0 else 0
+
+    # If this is an AJAX request, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'total_appointments': f"{total_appointments:,}",
+            'patient_satisfaction': f"{satisfaction_rate}%",
+            'avg_wait_time': f"{avg_wait_time} days",
+            'active_patients': f"{active_patients:,}",
+            'monthly_data': monthly_data,
+            'type_labels': type_labels,
+            'type_counts': type_counts,
+            'status_labels': status_labels,
+            'status_counts': status_counts,
+            'dept_labels': dept_labels,
+            'dept_counts': dept_counts,
+        })
+
     context = {
         'total_appointments': total_appointments,
         'pending_appointments': pending_appointments,
         'confirmed_appointments': confirmed_appointments,
         'completed_appointments': completed_appointments,
-        'monthly_data': json.dumps(list(monthly_data)),
-        'type_data': json.dumps(list(type_data)),
-        'status_data': json.dumps(list(status_data)),
-        'department_data': json.dumps(list(department_data)),
+        'satisfaction_rate': satisfaction_rate,
+        'avg_wait_time': avg_wait_time,
+        'active_patients': active_patients,
+        'total_change': round(total_change, 1),
+        'monthly_data': json.dumps(monthly_data),
+        'type_labels': json.dumps(type_labels),
+        'type_counts': json.dumps(type_counts),
+        'status_labels': json.dumps(status_labels),
+        'status_counts': json.dumps(status_counts),
+        'dept_labels': json.dumps(dept_labels),
+        'dept_counts': json.dumps(dept_counts),
+        'date_from': date_from or '',
+        'date_to': date_to or '',
+        'selected_department': department or '',
     }
 
     log_access(request.user, 'data_view', 'Accessed analytics dashboard', request)

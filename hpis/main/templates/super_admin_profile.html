@@ -54,7 +54,7 @@
     header a:hover {
       background: rgba(255,255,255,0.2);
     }
-    
+
     header a.active {
       background: rgba(255,255,255,0.25);
       font-weight: 600;
@@ -331,8 +331,6 @@
     <h1>👤 My Profile</h1>
     <nav>
       <a href="{% url 'dashboard_url' %}">Dashboard</a>
-      <a href="{% url 'analytics_dashboard' %}">Analytics</a>
-      <a href="{% url 'inventory_meds:dashboard' %}">Medicine Inventory</a>
       <a href="{% url 'settings' %}">Settings</a>
       <a href="{% url 'profile' %}" class="active">Profile</a>
     </nav>
@@ -340,7 +338,7 @@
 
   <!-- Main Container -->
   <div class="container">
-    
+
     <!-- Messages -->
     {% if messages %}
     <div class="messages">
@@ -364,23 +362,23 @@
 
       <div class="profile-body">
         <h3 class="section-title">Account Information</h3>
-        
+
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">Username</div>
             <div class="info-value">{{ user.username }}</div>
           </div>
-          
+
           <div class="info-item">
             <div class="info-label">Email Address</div>
             <div class="info-value">{{ user.email|default:"Not set" }}</div>
           </div>
-          
+
           <div class="info-item">
             <div class="info-label">Member Since</div>
             <div class="info-value">{{ user.date_joined|date:"M d, Y" }}</div>
           </div>
-          
+
           <div class="info-item">
             <div class="info-label">Last Login</div>
             <div class="info-value">
@@ -394,10 +392,10 @@
         </div>
 
         <h3 class="section-title">Personal Information</h3>
-        
+
         <form method="POST" action="{% url 'update_profile' %}">
           {% csrf_token %}
-          
+
           <div class="info-grid">
             <div class="form-group">
               <label>First Name</label>

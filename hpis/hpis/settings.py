@@ -73,7 +73,7 @@ DATABASES = {
             'DATABASE_URL',
             'sqlite:///db.sqlite3'  # Fallback to SQLite if DATABASE_URL not set
         ),
-        conn_max_age=600,  # Connection pooling: keep alive for 10 minutes
+        conn_max_age=60,  # Connection pooling: keep alive for 10 minutes
         conn_health_checks=True,  # Check connection health
     )
 }

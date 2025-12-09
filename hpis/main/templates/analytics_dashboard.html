@@ -6,216 +6,6 @@
     <title>Analytics Dashboard - HPIS</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     {% load static %}
-    <style>
-        /* CORE STYLES FROM HEAD (Original Repository) */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5f7fa;
-            color: #333;
-        }
-
-        header {
-            background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
-            color: white;
-            padding: 20px 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            font-size: 24px;
-        }
-
-        header nav {
-            display: flex;
-            gap: 15px;
-        }
-
-        header a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-
-        header a:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        h2 {
-            color: #1c2f6c;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        /* --- MERGED STYLES (FROM FIX AND ORIGINAL) --- */
-
-        /* Styles common to both (filters and KPIS) */
-        .filters { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-            display: flex; 
-            gap: 15px; 
-            flex-wrap: wrap; 
-            align-items: center;
-        }
-
-        .filters label { 
-            font-weight: 600; 
-            margin-right: 8px; 
-            font-size: 14px; /* Added from the fix to match the new filter structure */
-            color: #555;
-        }
-
-        .filters select, .filters input { 
-            padding: 8px 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            font-size: 14px; 
-        }
-
-        .filters button { 
-            background: #1c2f6c; 
-            color: white; 
-            padding: 8px 20px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: 600;
-        }
-
-        .filters button:hover {
-            background: #15224d;
-        }
-
-        /* Loading Overlay CSS (From the fix commit) */
-        #loadingOverlay {
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(255, 255, 255, 0.9); 
-            z-index: 1000; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-size: 20px; 
-            color: #1c2f6c; 
-            flex-direction: column; 
-            text-align: center;
-            display: none; 
-        }
-
-        .spinner {
-            border: 5px solid #f3f3f3; 
-            border-top: 5px solid #1c2f6c; 
-            border-radius: 50%; 
-            width: 40px; 
-            height: 40px; 
-            animation: spin 1s linear infinite; 
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* KPI Card Styles (mostly kept from HEAD) */
-        .kpi-card {
-            background: white;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 4px solid #1c2f6c;
-        }
-        /* ... other KPI card styles ... */
-        .kpi-card.positive { border-left-color: #2e7d32; }
-        .kpi-card.negative { border-left-color: #d32f2f; }
-        .kpi-card.warning { border-left-color: #f57c00; }
-        .kpi-label { color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
-        .kpi-value { font-size: 32px; font-weight: 700; color: #1c2f6c; margin-bottom: 8px; }
-        .kpi-change { font-size: 14px; font-weight: 600; }
-        .kpi-change.up { color: #2e7d32; }
-        .kpi-change.down { color: #d32f2f; }
-
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .chart-card h3 {
-            color: #1c2f6c;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-
-        footer {
-            background: #f0f0f0;
-            padding: 20px 30px;
-            text-align: center;
-            color: #666;
-            font-size: 13px;
-            margin-top: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-
-            header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .filters {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
     <link rel="stylesheet" href="{% static 'css/analytics_dashboard.css' %}">
 </head>
 <body>
@@ -228,58 +18,57 @@
             <a href="{% url 'inventory_meds:dashboard' %}">Medicine Inventory</a>
             <a href="{% url 'settings' %}">Settings</a>
             <a href="{% url 'profile' %}">Profile</a>
-            <a href="{% url 'user_login' %}">Logout</a> 
+            <a href="{% url 'user_login' %}">Logout</a>
         </nav>
     </header>
-
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        Refreshing report data...
-    </div>
 
     <div class="container">
         <h2>System Analytics & KPIs</h2>
 
-        <div class="filters">
+        <form method="GET" class="filters">
             <label>Date Range:</label>
-            <input type="date" id="date-from" value="2025-01-01">
+            <input type="date" id="date-from" name="date_from" value="{{ date_from }}">
             <label>to</label>
-            <input type="date" id="date-to" value="2025-12-31">
+            <input type="date" id="date-to" name="date_to" value="{{ date_to }}">
 
             <label>Department:</label>
-            <select id="department">
+            <select id="department" name="department">
                 <option value="">All Departments</option>
-                <option value="cardiology">Cardiology</option>
-                <option value="general">General Practice</option>
-                <option value="emergency">Emergency</option>
+                <option value="Cardiology" {% if selected_department == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+                <option value="General Practice" {% if selected_department == 'General Practice' %}selected{% endif %}>General Practice</option>
+                <option value="Emergency" {% if selected_department == 'Emergency' %}selected{% endif %}>Emergency</option>
+                <option value="Pediatrics" {% if selected_department == 'Pediatrics' %}selected{% endif %}>Pediatrics</option>
+                <option value="Orthopedics" {% if selected_department == 'Orthopedics' %}selected{% endif %}>Orthopedics</option>
             </select>
 
-            <button id="refreshButton" type="button">Refresh Data</button>
-        </div>
+            <button type="submit">Apply Filters</button>
+        </form>
 
         <div class="kpi-grid">
             <div class="kpi-card positive">
                 <div class="kpi-label">Total Appointments</div>
-                <div class="kpi-value" data-kpi="total_appointments">1,247</div>
-                <div class="kpi-change up">↑ 12% vs last month</div>
+                <div class="kpi-value" data-kpi="total_appointments">{{ total_appointments|default:"0" }}</div>
+                <div class="kpi-change {% if total_change >= 0 %}up{% else %}down{% endif %}">
+                    {% if total_change >= 0 %}↑{% else %}↓{% endif %} {{ total_change|floatformat:1 }}% vs last month
+                </div>
             </div>
 
             <div class="kpi-card positive">
                 <div class="kpi-label">Patient Satisfaction</div>
-                <div class="kpi-value" data-kpi="patient_satisfaction">94%</div>
-                <div class="kpi-change up">↑ 3% vs last month</div>
+                <div class="kpi-value" data-kpi="patient_satisfaction">{{ satisfaction_rate|floatformat:1 }}%</div>
+                <div class="kpi-change up">Based on completion rate</div>
             </div>
 
             <div class="kpi-card warning">
                 <div class="kpi-label">Average Wait Time</div>
-                <div class="kpi-value" data-kpi="avg_wait_time">18 min</div>
-                <div class="kpi-change down">↑ 2 min vs last month</div>
+                <div class="kpi-value" data-kpi="avg_wait_time">{{ avg_wait_time|floatformat:1 }} days</div>
+                <div class="kpi-change">From request to confirmation</div>
             </div>
 
             <div class="kpi-card positive">
                 <div class="kpi-label">Active Patients</div>
-                <div class="kpi-value" data-kpi="active_patients">3,842</div>
-                <div class="kpi-change up">↑ 8% vs last month</div>
+                <div class="kpi-value" data-kpi="active_patients">{{ active_patients|default:"0" }}</div>
+                <div class="kpi-change up">Unique patients with appointments</div>
             </div>
         </div>
 
@@ -320,39 +109,24 @@
     </footer>
 
     <script>
-        // --- UTILITIES (From the fix commit) ---
-        const loadingOverlay = document.getElementById('loadingOverlay');
+        // Parse data from Django context
+        const monthlyData = {{ monthly_data|safe }};
+        const typeLabels = {{ type_labels|safe }};
+        const typeCounts = {{ type_counts|safe }};
+        const statusLabels = {{ status_labels|safe }};
+        const statusCounts = {{ status_counts|safe }};
+        const deptLabels = {{ dept_labels|safe }};
+        const deptCounts = {{ dept_counts|safe }};
 
-        function showLoading() {
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-        function updateKPIs(data) {
-            document.querySelector('[data-kpi="total_appointments"]').textContent = data.total_appointments || 'N/A';
-            document.querySelector('[data-kpi="patient_satisfaction"]').textContent = data.patient_satisfaction || 'N/A';
-            document.querySelector('[data-kpi="avg_wait_time"]').textContent = data.avg_wait_time || 'N/A';
-            document.querySelector('[data-kpi="active_patients"]').textContent = data.active_patients || 'N/A';
-        }
-
-        function updateCharts(data) {
-            // FIX: Placeholder function, actual chart update logic must be implemented here or in external JS
-            console.log("Charts need to be redrawn with the new data object.");
-        }
-        
-        // --- ORIGINAL CHART INITIALIZATION (From HEAD) ---
-        // Appointment Type Chart (Pie)
+        // Appointment Type Chart (Doughnut)
         const appointmentTypeCtx = document.getElementById('appointmentTypeChart').getContext('2d');
         new Chart(appointmentTypeCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Consultation', 'Follow-up', 'Checkup', 'Emergency'],
+                labels: typeLabels.length > 0 ? typeLabels : ['No Data'],
                 datasets: [{
-                    data: [425, 312, 285, 225],
-                    backgroundColor: ['#1c2f6c', '#2e7d32', '#f57c00', '#d32f2f']
+                    data: typeCounts.length > 0 ? typeCounts : [1],
+                    backgroundColor: ['#1c2f6c', '#2e7d32', '#f57c00', '#d32f2f', '#7b1fa2']
                 }]
             },
             options: {
@@ -371,10 +145,10 @@
         new Chart(trendCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                labels: monthlyData.map(d => d.month),
                 datasets: [{
                     label: 'Appointments',
-                    data: [980, 1050, 1100, 1150, 1200, 1180, 1220, 1250, 1230, 1210, 1247],
+                    data: monthlyData.map(d => d.count),
                     borderColor: '#1c2f6c',
                     backgroundColor: 'rgba(28, 47, 108, 0.1)',
                     tension: 0.4,
@@ -402,10 +176,10 @@
         new Chart(statusCtx, {
             type: 'bar',
             data: {
-                labels: ['Pending', 'Assigned', 'Confirmed', 'Completed', 'Cancelled'],
+                labels: statusLabels.length > 0 ? statusLabels : ['No Data'],
                 datasets: [{
                     label: 'Count',
-                    data: [45, 82, 156, 892, 72],
+                    data: statusCounts.length > 0 ? statusCounts : [0],
                     backgroundColor: ['#f57c00', '#1976d2', '#2e7d32', '#1c2f6c', '#d32f2f']
                 }]
             },
@@ -430,10 +204,10 @@
         new Chart(departmentCtx, {
             type: 'bar',
             data: {
-                labels: ['Cardiology', 'General Practice', 'Emergency', 'Pediatrics', 'Orthopedics'],
+                labels: deptLabels.length > 0 ? deptLabels : ['No Data'],
                 datasets: [{
                     label: 'Appointments',
-                    data: [342, 458, 225, 189, 156],
+                    data: deptCounts.length > 0 ? deptCounts : [0],
                     backgroundColor: '#1c2f6c'
                 }]
             },
@@ -453,57 +227,7 @@
                 }
             }
         });
-
-        // Old refreshData function (REMOVED)
-
-        // --- AJAX HANDLER (From the fix commit) ---
-        document.getElementById('refreshButton').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // 1. Show Loading Indicator
-            showLoading(); 
-
-            const dateFrom = document.getElementById('date-from').value;
-            const dateTo = document.getElementById('date-to').value;
-            const department = document.getElementById('department').value;
-            
-            // Construct the URL with filters
-            const url = "{% url 'analytics_dashboard' %}?" + 
-                        `date_from=${dateFrom}&date_to=${dateTo}&department=${department}`;
-
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' 
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Server returned an error: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('New Analytics data fetched:', data);
-                
-                // 2. Update all dashboard elements
-                updateKPIs(data);
-                updateCharts(data); 
-                
-                // 3. Hide Loading Indicator
-                hideLoading(); 
-            })
-            .catch(error => {
-                console.error('AJAX Error:', error);
-                console.warn('Failed to refresh data. Please check server logs.'); 
-                
-                // 5. Always hide loading even on failure
-                hideLoading();
-            });
-        });
     </script>
-    
-    <script src="{% static 'js/analytics_dashboard.js' %}"></script>
 
 </body>
 </html>

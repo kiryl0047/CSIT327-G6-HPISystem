@@ -417,217 +417,242 @@
     </script>
 
     <script>
-        // Global variables to hold Chart instances
-        let stockStatusChart, categoryChart, expiryChart, stockLevelsChart;
+    (function() {
 
-        // Helper function to safely extract and parse JSON data from a script tag
-        function getJsonData(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                return JSON.parse(element.textContent);
+        function getJsonData(id){
+            const el = document.getElementById(id);
+            if(!el) return [];
+            try {
+                let data = JSON.parse(el.textContent);
+
+                // If Django accidentally outputs a JSON string rather than an array
+                if (typeof data === "string" && data.trim().startsWith("[")) {
+                    data = JSON.parse(data);
+                }
+                return data;
+            } catch (err){
+                console.error("JSON parse error:", id, err);
+                return [];
             }
-            return [];
         }
 
-        // Utility to update the summary card numbers
-        function updateSummaryCards(data) {
-            document.querySelector('[data-stat="total_medicines"]').textContent = data.total_medicines;
-            document.querySelector('[data-stat="active_medicines"]').textContent = data.active_medicines;
-            document.querySelector('[data-stat="low_stock_count"]').textContent = data.low_stock_count;
-            document.querySelector('[data-stat="expired_count"]').textContent = data.expired_count;
-            document.querySelector('[data-stat="expiring_soon_count"]').textContent = data.expiring_soon_count;
-        }
-
-        // --- 1. FUNCTION TO CREATE/UPDATE CHARTS ---
-        function createCharts(data) {
-            
-            // Parse numeric strings from summary-stats-data or AJAX response data
-            const activeMeds = parseInt(data.active_medicines) || 0;
-            const lowStock = parseInt(data.low_stock_count) || 0;
-            const outOfStock = parseInt(data.out_of_stock_count) || 0;
-            const expired = parseInt(data.expired_count) || 0;
-            const expiringSoon = parseInt(data.expiring_soon_count) || 0;
-            const criticalExpiry = parseInt(data.critical_expiry) || 0;
-            const validStock = parseInt(data.valid_stock) || 0;
-            
-            // Update Summary Cards (for AJAX)
-            updateSummaryCards(data);
-            
-            // Destroy existing charts if they exist
-            if (stockStatusChart) stockStatusChart.destroy();
-            if (categoryChart) categoryChart.destroy();
-            if (expiryChart) expiryChart.destroy();
-            if (stockLevelsChart) stockLevelsChart.destroy();
-            
-            // 1. Stock Status Distribution (Doughnut)
-            const stockStatusCtx = document.getElementById('stockStatusChart').getContext('2d');
-            stockStatusChart = new Chart(stockStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Active', 'Low Stock', 'Out of Stock', 'Expired'],
-                    datasets: [{
-                        data: [activeMeds, lowStock, outOfStock, expired],
-                        backgroundColor: ['#28a745', '#ffc107', '#6c757d', '#dc3545'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } } }
+        function sanitizeLabels(raw){
+            if (!raw) return [];
+            return raw.map(x => {
+                if (x === null || x === undefined) return "";
+                if (typeof x === "object") {
+                    return String(x.label ?? x.name ?? x.t ?? JSON.stringify(x));
                 }
-            });
-            
-            // 2. Medicines by Category (Bar)
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            categoryChart = new Chart(categoryCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.category_labels,
-                    datasets: [{
-                        label: 'Number of Medicines',
-                        data: data.category_counts,
-                        backgroundColor: '#1c2f6c',
-                        borderRadius: 6
-                    }]
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-
-            // 3. Expiry Status (Pie)
-            const expiryCtx = document.getElementById('expiryChart').getContext('2d');
-            expiryChart = new Chart(expiryCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Valid (>90 days)', 'Expiring Soon (30-90 days)', 'Critical (<30 days)', 'Expired'],
-                    datasets: [{
-                        data: [validStock, expiringSoon, criticalExpiry, expired],
-                        backgroundColor: ['#28a745', '#ffc107', '#ff9800', '#dc3545'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } } }
-                }
-            });
-            
-            // 4. Stock Levels (Horizontal Bar)
-            const stockLevelsCtx = document.getElementById('stockLevelsChart').getContext('2d');
-            stockLevelsChart = new Chart(stockLevelsCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.top_medicines_names,
-                    datasets: [
-                        {
-                            label: 'Current Stock',
-                            data: data.top_medicines_stock,
-                            backgroundColor: '#1c2f6c'
-                        },
-                        {
-                            label: 'Reorder Level',
-                            data: data.top_medicines_reorder,
-                            backgroundColor: '#ffc107'
-                        }
-                    ]
-                },
-                options: { 
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { font: { size: 12 } } } },
-                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
+                return String(x);
             });
         }
-        
-        // --- 2. INITIAL CHART LOAD (Using data passed by Django) ---
-        // Fetch numerical data from the script tag
+
         const summaryStatsElement = document.getElementById('summary-stats-data');
-        const initialSummaryData = summaryStatsElement ? JSON.parse(summaryStatsElement.textContent) : {};
+        const initialSummary = summaryStatsElement ? JSON.parse(summaryStatsElement.textContent) : {};
 
         const initialData = {
-            ...initialSummaryData, 
-            
-            // FETCH JSON data for charts
+            ...initialSummary,
             category_labels: getJsonData('category-labels-data'),
             category_counts: getJsonData('category-counts-data'),
             top_medicines_names: getJsonData('top-names-data'),
             top_medicines_stock: getJsonData('top-stock-data'),
-            top_medicines_reorder: getJsonData('top-reorder-data'),
+            top_medicines_reorder: getJsonData('top-reorder-data')
         };
-        
-        // Create charts on page load
+
+        initialData.category_labels = sanitizeLabels(initialData.category_labels);
+        initialData.top_medicines_names = sanitizeLabels(initialData.top_medicines_names);
+
+        let stockStatusChart = null;
+        let categoryChart = null;
+        let expiryChart = null;
+        let stockLevelsChart = null;
+
+        function updateSummaryCards(data){
+            const fields = [
+                "total_medicines",
+                "active_medicines",
+                "low_stock_count",
+                "expired_count",
+                "expiring_soon_count",
+            ];
+            fields.forEach(f => {
+                const el = document.querySelector(`[data-stat="${f}"]`);
+                if (el) el.textContent = data[f];
+            });
+        }
+
+        function createCharts(data){
+            const activeMeds = Number(data.active_medicines) || 0;
+            const lowStock = Number(data.low_stock_count) || 0;
+            const outOfStock = Number(data.out_of_stock_count) || 0;
+            const expired = Number(data.expired_count) || 0;
+            const expiringSoon = Number(data.expiring_soon_count) || 0;
+            const criticalExpiry = Number(data.critical_expiry) || 0;
+            const validStock = Number(data.valid_stock) || 0;
+
+            const categoryLabels = sanitizeLabels(data.category_labels);
+            const categoryCounts = (data.category_counts || []).map(v => Number(v) || 0);
+
+            const topNames = sanitizeLabels(data.top_medicines_names);
+            const topStock = (data.top_medicines_stock || []).map(v => Number(v) || 0);
+            const topReorder = (data.top_medicines_reorder || []).map(v => Number(v) || 0);
+
+            updateSummaryCards(data);
+
+            [stockStatusChart, categoryChart, expiryChart, stockLevelsChart].forEach(c => {
+                if (c) c.destroy();
+            });
+
+            // DONUT
+            stockStatusChart = new Chart(
+                document.getElementById("stockStatusChart").getContext("2d"),
+                {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Active","Low Stock","Out of Stock","Expired"],
+                        datasets: [{
+                            data: [activeMeds, lowStock, outOfStock, expired],
+                            backgroundColor: ["#28a745","#ffc107","#6c757d","#dc3545"],
+                            borderWidth: 2,
+                            borderColor: "#fff",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: "bottom" }
+                        }
+                    }
+                }
+            );
+
+            // FIXED BAR LABEL MAPPING (this solves your “t” problem)
+            categoryChart = new Chart(
+                document.getElementById("categoryChart").getContext("2d"),
+                {
+                    type: "bar",
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            label: "Number of Medicines",
+                            data: categoryCounts,
+                            backgroundColor: "#1c2f6c",
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: ctx => ctx[0].label,
+                                    label: ctx => "Number of medicines: " + ctx.raw
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    callback: function(value, index) {
+                                        const label = this.chart.data.labels[index];
+                                        if (!label) return "";
+                                        return label.length > 16 ? label.slice(0, 16) + "…" : label;
+                                    }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                }
+            );
+
+            // PIE
+            expiryChart = new Chart(
+                document.getElementById("expiryChart").getContext("2d"),
+                {
+                    type: "pie",
+                    data: {
+                        labels: [
+                            "Valid (>90 days)",
+                            "Expiring Soon (30-90 days)",
+                            "Critical (<30 days)",
+                            "Expired"
+                        ],
+                        datasets: [{
+                            data: [validStock, expiringSoon, criticalExpiry, expired],
+                            backgroundColor: ["#28a745","#ffc107","#ff9800","#dc3545"],
+                            borderWidth: 2,
+                            borderColor: "#fff",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: "bottom" }
+                        }
+                    }
+                }
+            );
+
+            // FIXED HORIZONTAL LABEL CALLBACK
+            stockLevelsChart = new Chart(
+                document.getElementById("stockLevelsChart").getContext("2d"),
+                {
+                    type: "bar",
+                    data: {
+                        labels: topNames,
+                        datasets: [
+                            {
+                                label: "Current Stock",
+                                data: topStock,
+                                backgroundColor: "#1c2f6c",
+                            },
+                            {
+                                label: "Reorder Level",
+                                data: topReorder,
+                                backgroundColor: "#ffc107",
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: "top" }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: function(value, index) {
+                                        const label = this.chart.data.labels[index];
+                                        return label.length > 28 ? label.slice(0,26) + "…" : label;
+                                    }
+                                }
+                            },
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                }
+            );
+
+        } // end createCharts()
+
         createCharts(initialData);
 
-        // Global reference to the overlay element
-        const loadingOverlay = document.getElementById('loadingOverlay');
-
-        function showLoading() {
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-
-        // --- 3. AJAX FILTER HANDLING ---
-        const form = document.getElementById('reportFilterForm');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // 1. Show Loading Indicator
-            showLoading(); 
-
-            const formData = new FormData(form);
-            const urlParams = new URLSearchParams(formData);
-            
-            // Construct the GET request URL
-            const url = "{% url 'inventory_meds:reports_dashboard' %}?" + urlParams.toString();
-
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Signal Django to return JSON
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // 2. Data received successfully (NOTE: AJAX data object keys match Python's JsonResponse keys)
-                console.log('New data fetched:', data);
-
-                // Ensure numerical fields are treated as strings if coming from AJAX (views.py)
-                // We trust the view to send numbers, but if they are strings, createCharts handles parsing.
-                createCharts(data); 
-                
-                // 3. Hide Loading Indicator after charts are drawn
-                hideLoading(); 
-            })
-            .catch(error => {
-                // 4. Handle error
-                console.error('Error fetching dynamic report data:', error);
-                
-                // *** FIX: Removed the alert() that caused the toast ***
-                // Instead, log the error and hide the spinner.
-                
-                // 5. Always hide loading even on failure
-                hideLoading();
-            });
-        });
+    })();
     </script>
 </body>
 </html>
