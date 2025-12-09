@@ -16,8 +16,10 @@ urlpatterns = [
     path("admin/dashboard/", views.super_admin_dashboard, name="super_admin_dashboard"),
     path("admin/create-staff/", views.create_staff, name="create_staff"),
     path("admin/manage-staff/", views.manage_staff, name="manage_staff"),
+    path("admin/super-admin-settings/", views.super_admin_settings, name="super_admin_settings"),
     path("admin/edit-staff/<int:staff_id>/", views.edit_staff, name="edit_staff"),
     path("admin/delete-staff/<int:staff_id>/", views.delete_staff, name="delete_staff"),
+    path("admin/reactivate-staff/<int:staff_id>/", views.reactivate_staff, name="reactivate_staff"),
 
     # Admin URLs
     path("admin-panel/dashboard/", views.admin_dashboard, name="admin_dashboard"),

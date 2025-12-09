@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deactivate Staff Account - HPIS</title>
+  <title>Reactivate Staff Account - HPIS</title>
   <style>
     * {
       margin: 0;
@@ -17,7 +17,6 @@
       color: #333;
     }
 
-    /* Header */
     header {
       background: linear-gradient(135deg, #1c2f6c 0%, #15224d 100%);
       color: white;
@@ -52,7 +51,6 @@
       background: rgba(255,255,255,0.1);
     }
 
-    /* Main Container */
     .container {
       max-width: 600px;
       margin: 60px auto;
@@ -71,50 +69,43 @@
       text-decoration: underline;
     }
 
-    /* Warning Card */
-    .warning-card {
+    .success-card {
       background: white;
       border-radius: 8px;
       padding: 40px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border-top: 4px solid #ffc107;
+      border-top: 4px solid #28a745;
     }
 
-    .warning-header {
+    .success-header {
       display: flex;
       align-items: center;
       gap: 15px;
       margin-bottom: 30px;
     }
 
-    .warning-icon {
+    .success-icon {
       font-size: 40px;
       line-height: 1;
     }
 
-    .warning-header h2 {
-      color: #ffc107;
+    .success-header h2 {
+      color: #28a745;
       font-size: 24px;
       margin: 0;
     }
 
-    /* Content */
-    .warning-content {
+    .success-content {
       margin-bottom: 30px;
     }
 
-    .warning-content p {
+    .success-content p {
       color: #666;
       line-height: 1.6;
       margin-bottom: 15px;
       font-size: 14px;
     }
 
-    .warning-content p strong {
-      color: #333;
-    }
-
-    /* Staff Info */
     .staff-info {
       background: #f9f9f9;
       border: 1px solid #ddd;
@@ -144,55 +135,16 @@
       color: #666;
     }
 
-    /* Consequences */
-    .consequences {
-      background: #fff3cd;
-      border-left: 4px solid #ffc107;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 30px;
-    }
-
-    .consequences h3 {
-      color: #856404;
-      font-size: 14px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .consequences ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .consequences li {
-      color: #856404;
-      font-size: 13px;
-      padding: 5px 0;
-      padding-left: 20px;
-      position: relative;
-    }
-
-    .consequences li::before {
-      content: "⚠";
-      position: absolute;
-      left: 0;
-    }
-
-    /* Confirmation */
-    .confirmation-text {
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
+    .info-box {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
       padding: 15px;
       border-radius: 4px;
       margin-bottom: 30px;
       font-size: 14px;
-      color: #0d47a1;
+      color: #155724;
     }
 
-    /* Form Actions */
     .form-actions {
       display: flex;
       gap: 15px;
@@ -211,15 +163,15 @@
       display: inline-block;
     }
 
-    .btn-warning {
-      background: #ffc107;
-      color: #000;
+    .btn-success {
+      background: #28a745;
+      color: white;
     }
 
-    .btn-warning:hover {
-      background: #e0a800;
+    .btn-success:hover {
+      background: #218838;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
 
     .btn-secondary {
@@ -231,7 +183,6 @@
       background: #e0e0e0;
     }
 
-    /* Footer */
     footer {
       background: #f0f0f0;
       padding: 20px 30px;
@@ -246,7 +197,7 @@
         margin: 30px auto;
       }
 
-      .warning-card {
+      .success-card {
         padding: 25px;
       }
 
@@ -267,9 +218,8 @@
 </head>
 <body>
 
-  <!-- Header -->
   <header>
-    <h1>Deactivate Staff Account</h1>
+    <h1>Reactivate Staff Account</h1>
     <nav>
       <a href="{% url 'super_admin_dashboard' %}">Dashboard</a>
       <a href="{% url 'analytics_dashboard' %}">Analytics</a>
@@ -278,23 +228,19 @@
     </nav>
   </header>
 
-  <!-- Main Container -->
   <div class="container">
     <a href="{% url 'manage_staff' %}" class="back-link">← Back to Staff List</a>
 
-    <div class="warning-card">
-      <!-- Warning Header -->
-      <div class="warning-header">
-        <div class="warning-icon">⚠️</div>
-        <h2>Deactivate Staff Account</h2>
+    <div class="success-card">
+      <div class="success-header">
+        <div class="success-icon">✓</div>
+        <h2>Reactivate Staff Account</h2>
       </div>
 
-      <!-- Warning Content -->
-      <div class="warning-content">
-        <p>You are about to <strong>deactivate</strong> the account for:</p>
+      <div class="success-content">
+        <p>You are about to <strong>reactivate</strong> the account for:</p>
       </div>
 
-      <!-- Staff Info -->
       <div class="staff-info">
         <div class="staff-info-item">
           <span class="staff-info-label">Name:</span>
@@ -323,49 +269,32 @@
         <div class="staff-info-item">
           <span class="staff-info-label">Current Status:</span>
           <span class="staff-info-value">
-            {% if staff_user.is_active %}
-              <span style="color: #28a745; font-weight: 600;">✓ Active</span>
-            {% else %}
-              <span style="color: #dc3545; font-weight: 600;">✗ Inactive</span>
-            {% endif %}
+            <span style="color: #dc3545; font-weight: 600;">✗ Inactive</span>
           </span>
-        </div>
-        <div class="staff-info-item">
-          <span class="staff-info-label">Account Created:</span>
-          <span class="staff-info-value">{{ staff_user.date_joined|date:"M d, Y" }}</span>
         </div>
       </div>
 
-      <!-- Consequences -->
-      <div class="consequences">
-        <h3>⚠️ This action will:</h3>
-        <ul>
-          <li>Prevent this user from logging into the system</li>
-          <li>Maintain all historical data and records</li>
-          <li>Keep audit trail and access logs intact</li>
-          <li>Preserve patient records and appointments</li>
-          <li>Allow reactivation later if needed</li>
+      <div class="info-box">
+        <strong>✓ Reactivating this account will:</strong>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+          <li>Allow the user to log in again</li>
+          <li>Restore full system access</li>
+          <li>Maintain all historical data</li>
+          <li>Log this action for audit purposes</li>
         </ul>
       </div>
 
-      <!-- Confirmation Text -->
-      <div class="confirmation-text">
-        <strong>ℹ️ Note:</strong> This is a reversible action. The account can be reactivated later by a super admin. All data will be preserved.
-      </div>
-
-      <!-- Deactivate Form -->
-      <form method="POST" action="{% url 'delete_staff' staff_user.id %}">
+      <form method="POST" action="{% url 'reactivate_staff' staff_user.id %}">
         {% csrf_token %}
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-warning">⏸️ Yes, Deactivate This Account</button>
-          <a href="{% url 'manage_staff' %}" class="btn btn-secondary">Cancel - Keep Active</a>
+          <button type="submit" class="btn btn-success">✓ Yes, Reactivate This Account</button>
+          <a href="{% url 'manage_staff' %}" class="btn btn-secondary">Cancel</a>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>&copy; 2025 Healthcare Patient Information System. All rights reserved.</p>
   </footer>

@@ -49,7 +49,7 @@
     }
 
     header a:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.2);
     }
 
     /* Main Container */
@@ -156,6 +156,11 @@
       background: #f9f9f9;
     }
 
+    .staff-table tr.inactive {
+      opacity: 0.6;
+      background: #fafafa;
+    }
+
     /* Staff Info */
     .staff-info {
       display: flex;
@@ -174,6 +179,10 @@
       justify-content: center;
       font-weight: 600;
       font-size: 14px;
+    }
+
+    .staff-avatar.inactive {
+      background: #9e9e9e;
     }
 
     .staff-details h4 {
@@ -207,6 +216,16 @@
       color: #7b1fa2;
     }
 
+    .badge-active {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .badge-inactive {
+      background: #ffcdd2;
+      color: #c62828;
+    }
+
     /* Actions */
     .actions {
       display: flex;
@@ -234,13 +253,22 @@
       background: #bbdefb;
     }
 
-    .btn-delete {
-      background: #ffcdd2;
-      color: #c62828;
+    .btn-deactivate {
+      background: #fff3e0;
+      color: #e65100;
     }
 
-    .btn-delete:hover {
-      background: #ef9a9a;
+    .btn-deactivate:hover {
+      background: #ffe0b2;
+    }
+
+    .btn-activate {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .btn-activate:hover {
+      background: #a5d6a7;
     }
 
     /* Empty State */
@@ -335,6 +363,12 @@
             <option value="admin">Admins Only</option>
             <option value="doctor">Doctors Only</option>
           </select>
+
+          <select onchange="filterByStatus(this.value)">
+            <option value="">All Status</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive Only</option>
+          </select>
         </div>
 
         <table class="staff-table">
@@ -345,16 +379,21 @@
               <th>Email</th>
               <th>Role</th>
               <th>Department</th>
+              <th>Status</th>
               <th>Created Date</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for staff_member in staff %}
-            <tr class="staff-row" data-role="{{ staff_member.profile.role }}">
+            <tr class="staff-row {% if not staff_member.is_active %}inactive{% endif %}"
+                data-role="{{ staff_member.profile.role }}"
+                data-status="{% if staff_member.is_active %}active{% else %}inactive{% endif %}">
               <td>
                 <div class="staff-info">
-                  <div class="staff-avatar">{{ staff_member.first_name|first|upper }}</div>
+                  <div class="staff-avatar {% if not staff_member.is_active %}inactive{% endif %}">
+                    {{ staff_member.first_name|first|upper }}
+                  </div>
                   <div class="staff-details">
                     <h4>{{ staff_member.first_name }} {{ staff_member.last_name }}</h4>
                     <p>ID: {{ staff_member.id }}</p>
@@ -371,11 +410,23 @@
                 {% endif %}
               </td>
               <td>{{ staff_member.profile.department|default:"—" }}</td>
+              <td>
+                {% if staff_member.is_active %}
+                  <span class="badge badge-active">Active</span>
+                {% else %}
+                  <span class="badge badge-inactive">Inactive</span>
+                {% endif %}
+              </td>
               <td>{{ staff_member.date_joined|date:"M d, Y" }}</td>
               <td>
                 <div class="actions">
                   <a href="{% url 'edit_staff' staff_member.id %}" class="action-btn btn-edit">Edit</a>
-                  <a href="{% url 'delete_staff' staff_member.id %}" class="action-btn btn-delete">Delete</a>
+
+                  {% if staff_member.is_active %}
+                    <a href="{% url 'delete_staff' staff_member.id %}" class="action-btn btn-deactivate">Deactivate</a>
+                  {% else %}
+                    <a href="{% url 'reactivate_staff' staff_member.id %}" class="action-btn btn-activate">Reactivate</a>
+                  {% endif %}
                 </div>
               </td>
             </tr>
@@ -401,6 +452,17 @@
       const rows = document.querySelectorAll('.staff-row');
       rows.forEach(row => {
         if (role === '' || row.dataset.role === role) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    function filterByStatus(status) {
+      const rows = document.querySelectorAll('.staff-row');
+      rows.forEach(row => {
+        if (status === '' || row.dataset.status === status) {
           row.style.display = '';
         } else {
           row.style.display = 'none';

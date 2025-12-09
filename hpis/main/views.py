@@ -409,24 +409,58 @@ def edit_staff(request, staff_id):
 @login_required
 @role_required('super_admin')
 def delete_staff(request, staff_id):
-    """Delete staff account"""
+    """Deactivate staff account (soft delete)"""
     staff_user = get_object_or_404(User, id=staff_id)
+
+    # Prevent deactivating yourself
+    if staff_user == request.user:
+        messages.error(request, 'You cannot deactivate your own account.')
+        return redirect('manage_staff')
 
     if request.method == 'POST':
         username = staff_user.username
-        staff_user.delete()
+
+        # Deactivate instead of delete
+        staff_user.is_active = False
+        staff_user.save()
 
         log_access(
             request.user,
             'data_update',
-            f'Deleted staff account: {username}',
+            f'Deactivated staff account: {username}',
             request
         )
 
-        messages.success(request, f'Staff account {username} deleted.')
+        messages.success(request, f'Staff account {username} has been deactivated.')
         return redirect('manage_staff')
 
     return render(request, 'delete_staff_confirm.html', {'staff_user': staff_user})
+
+@login_required
+@role_required('super_admin')
+def reactivate_staff(request, staff_id):
+    """Reactivate a deactivated staff account"""
+    staff_user = get_object_or_404(User, id=staff_id)
+
+    if request.method == 'POST':
+        username = staff_user.username
+        staff_user.is_active = True
+        staff_user.save()
+
+        log_access(
+            request.user,
+            'data_update',
+            f'Reactivated staff account: {username}',
+            request
+        )
+
+        messages.success(request, f'Staff account {username} has been reactivated.')
+        return redirect('manage_staff')
+
+    context = {
+        'staff_user': staff_user,
+    }
+    return render(request, 'reactivate_staff_confirm.html', context)
 
 
 # ==================== Admin Dashboard ====================
@@ -611,7 +645,7 @@ def settings(request):
 
     # Limit and optimize access logs query
     access_logs = AccessLog.objects.filter(user=request.user).only(
-        'access_type', 'ip_address', 'timestamp', 'description'
+        'access_type', 'timestamp', 'description'
     ).order_by('-timestamp')[:50]
 
     context = {
@@ -621,6 +655,32 @@ def settings(request):
     }
 
     return render(request, 'settings.html', context)
+
+@login_required
+def super_admin_settings(request):
+    """User settings page"""
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+
+    try:
+        notification_pref = request.user.notification_preference
+    except NotificationPreference.DoesNotExist:
+        notification_pref = NotificationPreference.objects.create(user=request.user)
+
+    # Limit and optimize access logs query
+    access_logs = AccessLog.objects.filter(user=request.user).only(
+        'access_type', 'timestamp', 'description'
+    ).order_by('-timestamp')[:50]
+
+    context = {
+        'user_profile': user_profile,
+        'notification_pref': notification_pref,
+        'access_logs': access_logs,
+    }
+
+    return render(request, 'super_admin_settings.html', context)
 
 
 @login_required
